@@ -1,0 +1,17 @@
+.. Mycroft Simple documentation master file, created by
+   sphinx-quickstart on Thu Jun 22 20:13:41 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Mycroft Simple
+==============
+
+*Mycroft, made simple*
+
+This repository contains experimental code restructing with things like Padatious integration.
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Contents:
+
+   source/mycroft
