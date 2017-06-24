@@ -24,11 +24,12 @@
 class MycroftSkill:
     """Base class for all Mycroft skills"""
 
-    def __init__(self, intent_manager):
+    def __init__(self, path_manager, intent_manager):
+        self.path_manager = path_manager
         self._intent_manager = intent_manager
         self._results = {}
 
-    def create_handler(self, handler, skill_name=None):
+    def _create_handler(self, handler, skill_name=None):
         """Wrap the skill handler to return added results"""
 
         def custom_handler(intent_data):
@@ -40,22 +41,25 @@ class MycroftSkill:
 
         return custom_handler
 
-    def register_intent(self, name, handler):
+    @property
+    def skill_name(self):
+        """Finds name of skill using builtin python features"""
+        return self.__class__.__name__
+
+    def register_intent(self, name, handler=lambda _:{}):
         """
         Set a function to be called when the intent called 'name' is activated
         In this handler the skill should receive a dict called intent_data
         and call self.add_result() to add output data. Nothing should be returned from the handler
         """
-        skill_name = self.__class__.__name__
-        self._intent_manager.register_intent(skill_name, name, self.create_handler(handler))
+        self._intent_manager.register_intent(self.skill_name, name, self._create_handler(handler))
 
     def register_fallback(self, handler):
         """
         Same as register_intent except the handler only receives a query
         and is only activated when all other Mycroft intents fail
         """
-        skill_name = self.__class__.__name__
-        self._intent_manager.register_fallback(self.create_handler(handler, skill_name))
+        self._intent_manager.register_fallback(self._create_handler(handler, self.skill_name))
 
     def add_result(self, key, value):
         """

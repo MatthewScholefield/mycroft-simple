@@ -55,5 +55,5 @@ class SkillManager:
             print('Loading ' + cls_name + '...')
 
             exec('from mycroft.skills.' + skill_name + '.skill import ' + cls_name)
-            exec('self.skills.append(' + cls_name + '(self.intent_manager))')
+            exec('self.skills.append(' + cls_name + '(self.path_manager, self.intent_manager))')
         print()
