@@ -58,8 +58,10 @@ class IntentEngine(metaclass=ABCMeta):
     def calc_intents(self, query):
         """
         Run the intent engine to determine the probability of each intent against the query
-        :param query: input sentence as a single string
-        :return: dict of intent: intent_data where
+        Args:
+            query (str): input sentence as a single string
+        Returns:
+            intent (dict): intent_data where
 
         Example return data:
         { 'name': 'TimeSkill:time.ask', 'confidence': '0.65', 'matches': {'location': 'new york'} }
