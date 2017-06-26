@@ -40,12 +40,13 @@ class IntentManager:
         Register an intent via the corresponding intent engine
         It tries passing the arguments to each engine until one can interpret it correctly
 
-        :param skill_name:
-        :param intent: argument used to build intent; can be anything
-        :param handler: function that receives intent_data and returns a dict of results
-                        note: register_intent in the MycroftSkill base class automatically manages results
+        Note: register_intent in the MycroftSkill base class automatically manages results
+        Args:
+            skill_name (str):
+            intent (obj): argument used to build intent; can be anything
+            handler (obj): function that receives intent_data and returns a dict of results
 
-        :return: nothing
+
         """
         for i in self.engines:
             intent_name = i.try_register_intent(skill_name, intent)
@@ -58,7 +59,8 @@ class IntentManager:
         """
         Register a function to be called as a general knowledge fallback
 
-        :param handler: function that receives query and returns a
+        Args:
+            handler (obj): function that receives query and returns a
                         dict of results, one of which is 'confidence'
                         note: register_fallback in the MycroftSkill base class automatically manages results
         """
@@ -72,10 +74,11 @@ class IntentManager:
         """
         Find the best intent and run the handler to find the results
 
-        :param query: input sentence
-        :return: name, results
-        :rtype name: string (namespaced intent)
-        :rtype results: dict
+        Args:
+            query (str): input sentence
+        Returns:
+            name (str): namespaced intent
+            results (dict) : dictionary of the possible intent results
         """
 
         query = query.strip()

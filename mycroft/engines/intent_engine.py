@@ -49,8 +49,8 @@ class IntentEngine(metaclass=ABCMeta):
     def try_register_intent(*args, **kwargs):
         """
         Attempt to register intent with given arguments
-        :rtype str
-        :returns intent name if parsed parameters, otherwise ""
+        Returns:
+            name (str): intent name if parsed parameters, otherwise ""
         """
         pass
 
