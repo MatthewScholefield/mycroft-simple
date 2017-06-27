@@ -65,12 +65,12 @@ def split_sentences(text):
     return sents
 
 
-def init_logging():
-    level = logging.DEBUG  # logging.getLevelName(config.get('log_level', 'DEBUG'))
+def init_logging(config):
+    level = logging.getLevelName(config.get('log_level', 'DEBUG'))
     fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
     datefmt = '%H:%M:%S'
     formatter = logging.Formatter(fmt, datefmt)
-    handler = logging.FileHandler('/var/tmp/mycroft.log')  # config.get('log_file'))
+    handler = logging.FileHandler(config.get('log_file'))
     handler.setFormatter(formatter)
     logging.basicConfig(handlers=[handler], level=level, format=fmt, datefmt=datefmt)
 

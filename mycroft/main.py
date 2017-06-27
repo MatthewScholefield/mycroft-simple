@@ -30,8 +30,8 @@ sys.path.append(os.path.abspath('.'))
 
 from mycroft import mycroft_thread
 from mycroft.api import is_paired
-from mycroft.clients.text_client import TextClient
 from mycroft.configuration import ConfigurationManager
+from mycroft.clients.text_client import TextClient
 from mycroft.managers.client_manager import ClientManager
 from mycroft.managers.format_manager import FormatManager
 from mycroft.managers.intent_manager import IntentManager
@@ -51,7 +51,7 @@ def try_pair():
 
 
 def main():
-    init_logging()
+    init_logging(ConfigurationManager.get())
 
     path_manager = PathManager(os.getcwd())
     intent_manager = IntentManager(path_manager)

@@ -67,7 +67,6 @@ class Api:
         IdentityManager.save(data)
 
     def send(self, params):
-        get_logger().error('AHH!')
         method = params.get("method", "GET")
         headers = self.build_headers(params)
         data = self.build_data(params)
@@ -75,7 +74,7 @@ class Api:
         query = self.build_query(params)
         url = self.build_url(params)
         response = requests.request(method, url, headers=headers, params=query,
-                                    data=data, json=json, timeout=(3.05, 2))
+                                    data=data, json=json, timeout=(3.05, 15))
         return self.get_response(response)
 
     def get_response(self, response):

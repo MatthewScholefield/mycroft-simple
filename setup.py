@@ -18,7 +18,8 @@ setup(name='mycroft_simple',
       ],
       install_requires=[
           'websocket_server>=0.4',
-          'PyYAML>=3.12'
+          'PyYAML>=3.12',
+          'requests>=2.18.1'
       ],
       entry_points={
           'console_scripts': [
