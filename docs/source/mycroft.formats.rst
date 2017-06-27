@@ -1,8 +1,7 @@
-mycroft\.formats package
+**formats package**
 ========================
 
-
-mycroft\.formats\.dialog\_format module
+dialog\_format module
 ---------------------------------------
 
 .. automodule:: mycroft.formats.dialog_format
@@ -10,7 +9,7 @@ mycroft\.formats\.dialog\_format module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.formats\.mycroft\_format module
+mycroft\_format module
 ----------------------------------------
 
 .. automodule:: mycroft.formats.mycroft_format
