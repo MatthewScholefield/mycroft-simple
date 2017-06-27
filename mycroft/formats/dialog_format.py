@@ -55,6 +55,7 @@ class DialogFormat(MycroftFormat):
             if len(best_lines) == 0:
                 best_lines = lines
 
-            best_lines = [i.strip() for i in best_lines]
+            # Remove lines of only whitespace
+            best_lines = [i for i in [i.strip() for i in best_lines] if i]
 
             self.output = best_lines[randint(0, len(best_lines) - 1)]

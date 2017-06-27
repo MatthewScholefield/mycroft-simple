@@ -1,8 +1,15 @@
-mycroft\.managers package
+**managers package**
 =========================
 
+api\_manager module
+--------------------------------------
 
-mycroft\.managers\.client\_manager module
+.. automodule:: mycroft.managers.api_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+client\_manager module
 -----------------------------------------
 
 .. automodule:: mycroft.managers.client_manager
@@ -10,7 +17,7 @@ mycroft\.managers\.client\_manager module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.managers\.format\_manager module
+format\_manager module
 -----------------------------------------
 
 .. automodule:: mycroft.managers.format_manager
@@ -18,7 +25,7 @@ mycroft\.managers\.format\_manager module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.managers\.intent\_manager module
+intent\_manager module
 -----------------------------------------
 
 .. automodule:: mycroft.managers.intent_manager
@@ -26,7 +33,7 @@ mycroft\.managers\.intent\_manager module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.managers\.path\_manager module
+path\_manager module
 ---------------------------------------
 
 .. automodule:: mycroft.managers.path_manager
@@ -34,7 +41,7 @@ mycroft\.managers\.path\_manager module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.managers\.query\_manager module
+query\_manager module
 ----------------------------------------
 
 .. automodule:: mycroft.managers.query_manager
@@ -42,7 +49,7 @@ mycroft\.managers\.query\_manager module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.managers\.skill\_manager module
+skill\_manager module
 ----------------------------------------
 
 .. automodule:: mycroft.managers.skill_manager

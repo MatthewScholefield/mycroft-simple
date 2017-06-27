@@ -99,19 +99,23 @@ class IntentManager:
         intent_data = sorted_intents[0]
         if intent_data['confidence'] > 0.5:
             name = intent_data['name']
-            results = self.handlers[name](intent_data)
+            results, actions = self.handlers[name](intent_data)
         else:
             best_results = {'confidence': '0.0'}
+            best_actions = []
             for fallback in self.fallbacks:
-                results = fallback(query)
+                results, actions = fallback(query)
                 if float(results['confidence']) > float(best_results['confidence']):
                     best_results = results
+                    best_actions = actions
 
             name = 'UnknownSkill:unknown'
             results = {}
+            actions = []
 
             if float(best_results['confidence']) > 0.5:
                 name = make_namespaced('fallback', best_results['skill_name'])
                 results = best_results
+                actions = best_actions
 
-        return name, results
+        return name, results, actions

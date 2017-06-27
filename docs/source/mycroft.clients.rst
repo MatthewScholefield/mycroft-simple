@@ -1,8 +1,7 @@
-mycroft\.clients package
+**clients package**
 ========================
 
-
-mycroft\.clients\.mycroft\_client module
+mycroft\_client module
 ----------------------------------------
 
 .. automodule:: mycroft.clients.mycroft_client
@@ -10,11 +9,10 @@ mycroft\.clients\.mycroft\_client module
     :undoc-members:
     :show-inheritance:
 
-mycroft\.clients\.text\_client module
+text\_client module
 -------------------------------------
 
 .. automodule:: mycroft.clients.text_client
     :members:
     :undoc-members:
     :show-inheritance:
-

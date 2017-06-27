@@ -21,6 +21,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import logging
+import inspect
+
+
 def to_camel(snake):
     """time_skill -> TimeSkill"""
     return snake.title().replace('_', '')
@@ -59,3 +63,29 @@ def split_sentences(text):
         sents = new_sents
 
     return sents
+
+
+def init_logging():
+    level = logging.DEBUG  # logging.getLevelName(config.get('log_level', 'DEBUG'))
+    fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
+    datefmt = '%H:%M:%S'
+    formatter = logging.Formatter(fmt, datefmt)
+    handler = logging.FileHandler('/var/tmp/mycroft.log')  # config.get('log_file'))
+    handler.setFormatter(formatter)
+    logging.basicConfig(handlers=[handler], level=level, format=fmt, datefmt=datefmt)
+
+
+def get_logger(name=None):
+    """
+    Get a python logger with the name of the caller's module
+    :return: a logger instance
+    :rtype: logging.Logger
+    """
+    if name is None:
+        try:
+            name = inspect.getmodule(inspect.stack()[1][0]).__name__
+        except IndexError:
+            name = 'mycroft'
+
+    return logging.getLogger(name)
+

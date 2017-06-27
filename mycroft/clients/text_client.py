@@ -45,6 +45,9 @@ class TextClient(MycroftClient):
         self.is_running = False
 
     def on_response(self, format_manager):
-        print("    " + format_manager.as_dialog)
-        print()
+        if format_manager is not None:
+            dialog = format_manager.as_dialog
+            if len(dialog) > 0:
+                print("    " + dialog)
+                print()
         self.response_event.set()

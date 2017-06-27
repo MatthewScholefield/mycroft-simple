@@ -24,7 +24,7 @@
 import json
 import os
 import subprocess
-from os import chdir
+from os import chdir, getcwd
 from os.path import isfile, isdir
 from subprocess import Popen, call
 from threading import Event, Thread
@@ -58,14 +58,15 @@ class PadatiousEngine(IntentEngine):
             raise TimeoutError('Could not connect websocket to Padatious')
 
     def _build_padatious(self):
-        def cmd(a):
-            call(a.split(' '))
 
-        if not isdir('padatious'):
-            cmd('git clone -b ' + self.GIT_BRANCH + ' --single-branch ' + self.GIT_URL + ' padatious')
-        chdir('padatious')
-        cmd('sh build.sh')
-        chdir('..')
+        if not isdir(self.path_manager.padatious_dir):
+            call(['git', 'clone', '-b', self.GIT_BRANCH, '--single-branch', self.GIT_URL, self.path_manager.padatious_dir])
+        cur_path = getcwd()
+        try:
+            chdir(self.path_manager.padatious_dir)
+            call(['sh', 'build.sh'])
+        finally:
+            chdir(cur_path)
 
     def _create_server(self):
         """Creates a websocket server to communicate with the padatious process"""

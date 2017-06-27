@@ -21,7 +21,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os.path import join
+from os.path import join, expanduser
 
 from mycroft.util import to_snake
 
@@ -34,20 +34,29 @@ class PathManager:
         self.lang = 'en-us'
 
     @property
-    def mod_path(self):
+    def _mod_dir(self):
+        """Mycroft module directory"""
         return join(self.base_path, 'mycroft')
+
+    @property
+    def user_dir(self):
+        return join(expanduser('~'), '.mycroft')
+
+    @property
+    def padatious_dir(self):
+        return join(self.user_dir, 'padatious')
 
     @property
     def padatious_exe(self):
         """The locally compiled Padatious executable"""
-        return join(self.base_path, 'padatious', 'build', 'src', 'padatious-mycroft')
+        return join(self.padatious_dir, 'build', 'src', 'padatious-mycroft')
 
     @property
     def skills_dir(self):
-        return join(self.mod_path, 'skills')
+        return join(self.user_dir, 'skills')
 
     def skill_dir(self, skill_name):
-        return join(self.mod_path, 'skills', to_snake(skill_name))
+        return join(self.skills_dir, to_snake(skill_name))
 
     def vocab_dir(self, skill_name):
         return join(self.skill_dir(skill_name), 'vocab', self.lang)
@@ -57,3 +66,6 @@ class PathManager:
 
     def dialog_dir(self, skill_name):
         return self.vocab_dir(skill_name)
+
+    def skill_conf(self, skill_name):
+        return join(self.skill_dir(skill_name), 'skill.conf')

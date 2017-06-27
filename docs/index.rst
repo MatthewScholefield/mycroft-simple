@@ -11,7 +11,7 @@ Mycroft Simple
 This repository contains experimental code restructing with things like Padatious integration.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
    :caption: Contents:
 
    source/mycroft

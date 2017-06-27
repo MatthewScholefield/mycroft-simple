@@ -21,15 +21,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from mycroft import mycroft_thread
-from mycroft.skills.mycroft_skill import MycroftSkill
 
 
-class QuitSkill(MycroftSkill):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        def do_quit(_):
-            mycroft_thread.quit()
-
-        self.register_intent('quit', do_quit)
+class ApiManager:
+    def __init__(self, configuration_manager):
+        self.configuration_manager = configuration_manager
