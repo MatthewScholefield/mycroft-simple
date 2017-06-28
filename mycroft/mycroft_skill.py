@@ -146,7 +146,8 @@ class MycroftSkill:
             if not_paired:
                 self.add_action('not.paired')
         
-        :param action: Name of action to be activated. For instance, corresponds to name of dialog files
+        Args:
+             action (str): Name of action to be activated. For instance, corresponds to name of dialog files
         """
         self._actions.append(make_namespaced(action, self.skill_name))
 

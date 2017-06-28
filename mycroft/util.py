@@ -78,8 +78,8 @@ def init_logging(config):
 def get_logger(name=None):
     """
     Get a python logger with the name of the caller's module
-    :return: a logger instance
-    :rtype: logging.Logger
+    Returns:
+     logging.Logger: a logger instance
     """
     if name is None:
         try:
