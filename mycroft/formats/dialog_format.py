@@ -24,7 +24,6 @@
 from os.path import join, isfile
 from random import randint
 
-from mycroft.engines.intent_engine import extract_skill_name, extract_intent_name
 from mycroft.formats.mycroft_format import MycroftFormat
 
 
@@ -41,10 +40,8 @@ class DialogFormat(MycroftFormat):
 
     def generate(self, name, results):
         self.output = ""
-        skill_name = extract_skill_name(name)
-        intent_name = extract_intent_name(name)
-        dialog_dir = self.path_manager.dialog_dir(skill_name)
-        dialog_file_name = join(dialog_dir, intent_name + '.dialog')
+        dialog_dir = self.path_manager.dialog_dir(name.skill)
+        dialog_file_name = join(dialog_dir, name.intent + '.dialog')
         if not isfile(dialog_file_name):
             return
         with open(dialog_file_name, 'r') as f:

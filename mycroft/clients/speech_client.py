@@ -25,12 +25,12 @@ from threading import Event
 
 from speech_recognition import UnknownValueError
 
+from mycroft import mycroft_thread
 from mycroft.clients.mycroft_client import MycroftClient
 from mycroft.clients.speech.recognizers.pocketsphinx_recognizer import PocketsphinxListener
 from mycroft.clients.speech.stt import STT
 from mycroft.clients.speech.tts.mimic_tts import MimicTTS
 from mycroft.configuration import ConfigurationManager
-from mycroft import mycroft_thread
 from mycroft.util import logger
 
 

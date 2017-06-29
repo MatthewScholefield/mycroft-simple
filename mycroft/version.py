@@ -50,5 +50,5 @@ class VersionManager:
                     return json.load(f)
             except:
                 logger.error("Failed to load version from '%s'"
-                          % VersionManager.__location)
+                             % VersionManager.__location)
         return {"coreVersion": None, "enclosureVersion": None}

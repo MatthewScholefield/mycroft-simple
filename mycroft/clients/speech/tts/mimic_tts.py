@@ -21,9 +21,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from subprocess import call
 from os import chdir, getcwd, mkdir
 from os.path import isdir, isfile, join
+from subprocess import call
 
 from mycroft.clients.speech.tts.mycroft_tts import MycroftTTS
 

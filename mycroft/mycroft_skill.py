@@ -24,7 +24,35 @@
 from threading import Timer
 
 from mycroft.configuration import ConfigurationManager
-from mycroft.engines.intent_engine import make_namespaced
+
+
+class IntentName:
+    def __init__(self, skill='', intent=''):
+        self.skill = skill
+        self.intent = intent
+
+    def __str__(self):
+        return self.skill + ':' + self.intent
+
+    def __eq__(self, other):
+        return self.skill == other.skill and self.intent == other.intent
+
+    @classmethod
+    def from_str(cls, str):
+        parts = str.split(':')
+        return cls(parts[0], parts[1])
+
+
+class SkillResult:
+    def __init__(self, name=IntentName(), results=[], actions=[], confidence=0.0):
+        self.name = name
+        self.data = results
+        self.actions = actions
+        self.confidence = confidence
+
+    def set_name(self, name):
+        self.name = name
+        return self
 
 
 class MycroftSkill:
@@ -42,37 +70,41 @@ class MycroftSkill:
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
                                                              self.path_manager.skill_conf(self.skill_name))
 
-    def _create_handler(self, handler, skill_name=None):
-        """Wrap the skill handler to return added results"""
-
+    def _create_handler(self, handler):
         def custom_handler(intent_data):
+            """
+            Runs the handler and generates SkillResult to return
+            Returns:
+                result (SkillResult): data retrieved from API by the skill
+            """
+            result = SkillResult()
             self._results.clear()
             self._actions.clear()
-            handler(intent_data)
+            result.confidence = handler(intent_data)
+            if result.confidence is None:
+                result.confidence = 0.75
 
-            if skill_name is not None:
-                self._results['skill_name'] = skill_name
-
-            results = self._results.copy()
-            actions = self._actions.copy()
+            result.data = self._results.copy()
+            result.actions = self._actions.copy()
             self._results.clear()
             self._actions.clear()
 
             if self._ignore_results:
                 self._ignore_results = False
-                results = None
+                result.data = None
 
-            return results, actions
+            return result
 
         return custom_handler
 
     def send_results(self, intent):
-        """Only call outside of a handler to output results"""
-        results = self._results.copy()
-        actions = self._actions.copy()
+        """Only call outside of a handler to output data"""
+        result = SkillResult(IntentName(self.skill_name, intent))
+        result.data = self._results.copy()
+        result.actions = self._actions.copy()
         self._results.clear()
         self._actions.clear()
-        self._query_manager.send_results(make_namespaced(intent, self.skill_name), results, actions)
+        self._query_manager.send_result(result)
 
     @property
     def skill_name(self):
@@ -106,20 +138,20 @@ class MycroftSkill:
     def lang(self):
         return self.global_config.get('lang')
 
-    def register_intent(self, name, handler=lambda _: None):
+    def register_intent(self, intent, handler=lambda _: None):
         """
-        Set a function to be called when the intent called 'name' is activated
+        Set a function to be called when the intent called 'intent' is activated
         In this handler the skill should receive a dict called intent_data
         and call self.add_result() to add output data. Nothing should be returned from the handler
         """
-        self._intent_manager.register_intent(self.skill_name, name, self._create_handler(handler))
+        self._intent_manager.register_intent(self.skill_name, intent, self._create_handler(handler))
 
     def register_fallback(self, handler):
         """
         Same as register_intent except the handler only receives a query
         and is only activated when all other Mycroft intents fail
         """
-        self._intent_manager.register_fallback(self._create_handler(handler, self.skill_name))
+        self._intent_manager.register_fallback(self.skill_name, self._create_handler(handler))
 
     def add_result(self, key, value):
         """
@@ -149,21 +181,21 @@ class MycroftSkill:
         Args:
             action (str): Name of action to be activated. For instance, corresponds to name of dialog files
         """
-        self._actions.append(make_namespaced(action, self.skill_name))
+        self._actions.append(IntentName(self.skill_name, action))
 
     def set_action(self, action):
         """
         Sets the only action to be executed. This can be used
         to change the outputted dialog under certain conditions
         """
-        self._actions = [make_namespaced(action, self.skill_name)]
+        self._actions = [IntentName(self.skill_name, action)]
         self._ignore_results = True
 
 
 class ScheduledSkill(MycroftSkill):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._delay_s = None # Delay in seconds
+        self._delay_s = None  # Delay in seconds
         self.thread = None
 
     def set_delay(self, delay):
@@ -179,7 +211,7 @@ class ScheduledSkill(MycroftSkill):
         """Create the self-sustaining thread that runs on_triggered()"""
         if self.thread:
             self.thread.cancel()
-        self.thread = Timer(self._delay_s,  self._make_callback())
+        self.thread = Timer(self._delay_s, self._make_callback())
         self.thread.daemon = True
         self.thread.start()
 
@@ -189,4 +221,5 @@ class ScheduledSkill(MycroftSkill):
                 self.on_triggered()
             finally:
                 self._schedule()
+
         return callback

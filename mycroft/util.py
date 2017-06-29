@@ -21,10 +21,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import logging
 import inspect
-from ctypes import *
+import logging
 from contextlib import contextmanager
+from ctypes import *
 
 
 def to_camel(snake):
@@ -78,6 +78,7 @@ class logger:
     """
 
     _custom_name = None
+
     @staticmethod
     def init(config):
         level = logging.getLevelName(config.get('log_level', 'DEBUG'))
@@ -148,4 +149,3 @@ def redirect_alsa_errors():
     asound.snd_lib_error_set_handler(func_type(alsa_err_handler))
     yield
     asound.snd_lib_error_set_handler(None)
-

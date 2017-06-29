@@ -21,10 +21,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import yaml
 import re
 from genericpath import exists, isfile
 from os.path import join, dirname, expanduser
+
+import yaml
 
 from mycroft.util import logger, to_snake
 
@@ -210,11 +211,11 @@ class RemoteConfiguration:
     @staticmethod
     def __load_list(config, values):
         for v in values:
-            module = v["@type"]
+            mod = v["@type"]
             if v.get("active"):
-                config["module"] = module
-            config[module] = config.get(module, {})
-            RemoteConfiguration.__load(config[module], v)
+                config["module"] = mod
+            config[mod] = config.get(mod, {})
+            RemoteConfiguration.__load(config[mod], v)
 
 
 class ConfigurationManager:

@@ -22,13 +22,13 @@
 # under the License.
 #
 from copy import copy
+from json.decoder import JSONDecodeError
 
 import requests
 from requests import HTTPError
 
 from mycroft.configuration import ConfigurationManager
 from mycroft.identity import IdentityManager
-from mycroft.util import logger
 from mycroft.version import VersionManager
 
 __paired_cache = False
@@ -44,6 +44,7 @@ class Api:
         self.url = config_server.get("url")
         self.version = config_server.get("version")
         self.identity = IdentityManager.get()
+        self.old_params = None
 
     def request(self, params):
         self.check_token()
@@ -81,7 +82,7 @@ class Api:
         data = self.get_data(response)
         if 200 <= response.status_code < 300:
             return data
-        elif response.status_code == 401\
+        elif response.status_code == 401 \
                 and not response.url.endswith("auth/token"):
             self.refresh_token()
             return self.send(self.old_params)
@@ -90,7 +91,7 @@ class Api:
     def get_data(self, response):
         try:
             return response.json()
-        except:
+        except JSONDecodeError:
             return response.text
 
     def build_headers(self, params):
@@ -100,7 +101,8 @@ class Api:
         params["headers"] = headers
         return headers
 
-    def add_content_type(self, headers):
+    @staticmethod
+    def add_content_type(headers):
         if not headers.__contains__("Content-Type"):
             headers["Content-Type"] = "application/json"
 
@@ -242,7 +244,7 @@ def is_paired():
         api = DeviceApi()
         api.get()
         __paired_cache = api.identity.uuid is not None and \
-            api.identity.uuid != ""
+                         api.identity.uuid != ""
         return __paired_cache
     except:
         return False

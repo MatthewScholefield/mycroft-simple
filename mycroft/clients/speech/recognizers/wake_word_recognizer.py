@@ -21,9 +21,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import abstractmethod, ABCMeta
-
 import audioop
+from abc import abstractmethod, ABCMeta
 from threading import Event
 
 import pyaudio

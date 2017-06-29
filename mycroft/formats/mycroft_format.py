@@ -37,12 +37,12 @@ class MycroftFormat(metaclass=ABCMeta):
         self.path_manager = path_manager
 
     @abstractmethod
-    def generate(self, name, results):
+    def generate(self, name, data):
         """
-        Internally format the data from the results
+        Translate the data into different formats
         Depending on the format, this can be accessed different ways
         Args:
-            name (str): namespaced intent name
-            results (dict): dict containing all data from the skill
+            name (IntentName): full intent name
+            data (dict): dict containing all data from the skill
         """
         pass

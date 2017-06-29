@@ -23,8 +23,8 @@
 #
 from threading import Event
 
-from mycroft.clients.mycroft_client import MycroftClient
 from mycroft import mycroft_thread
+from mycroft.clients.mycroft_client import MycroftClient
 
 
 class TextClient(MycroftClient):

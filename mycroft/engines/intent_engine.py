@@ -23,20 +23,29 @@
 #
 from abc import ABCMeta, abstractmethod
 
-
-def make_namespaced(intent_name, skill_name):
-    """Mangle the intent name so that it doesn't conflict and to save the skill name in the same string"""
-    return skill_name + ':' + intent_name
-
-
-def extract_skill_name(namespaced_name):
-    """Ex. TimeSkill:time.ask -> TimeSkill"""
-    return namespaced_name.split(':')[0]
+from mycroft.mycroft_skill import IntentName
 
 
 def extract_intent_name(namespaced_name):
     """Ex. TimeSkill:time.ask -> time.ask"""
     return namespaced_name.split(':')[1]
+
+
+class IntentMatch:
+    """An object that describes the how a query fits into a particular intent"""
+
+    def __init__(self, name=IntentName(), confidence=0.0, matches={}):
+        self.name = name
+        self.confidence = confidence
+        self.matches = matches
+
+    @classmethod
+    def merge(cls, match_a, match_b):
+        return match_a if match_a.confidence > match_b.confidence else match_b
+
+    @classmethod
+    def from_dict(cls, dict):
+        return cls(IntentName.from_str(dict['name']), dict['confidence'], dict['matches'])
 
 
 class IntentEngine(metaclass=ABCMeta):
@@ -61,10 +70,7 @@ class IntentEngine(metaclass=ABCMeta):
         Args:
             query (str): input sentence as a single string
         Returns:
-            intent (dict): Dictionary where the key is the intent name and
-            the value is data associated with that intent.
-        Example return data:
-        { 'name': 'TimeSkill:time.ask', 'confidence': '0.65', 'matches': {'location': 'new york'} }
+            intent matches (list<IntentMatch>): describes how the intent engine matched each intent with the query
         """
         pass
 

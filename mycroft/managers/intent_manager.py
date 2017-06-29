@@ -21,8 +21,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from mycroft.engines.intent_engine import make_namespaced
+from math import sqrt
+
+from mycroft.engines.intent_engine import IntentMatch
 from mycroft.engines.padatious_engine import PadatiousEngine
+from mycroft.mycroft_skill import IntentName
 
 engine_classes = [PadatiousEngine]
 
@@ -40,85 +43,78 @@ class IntentManager:
         Register an intent via the corresponding intent engine
         It tries passing the arguments to each engine until one can interpret it correctly
 
-        Note: register_intent in the MycroftSkill base class automatically manages results
+        Note: register_intent in the MycroftSkill base class automatically creates a SkillResult
         Args:
             skill_name (str):
             intent (obj): argument used to build intent; can be anything
-            handler (obj): function that receives intent_data and returns a dict of results
+            handler (obj): function that receives a SkillMatch and returns a SkillResult
 
 
         """
         for i in self.engines:
             intent_name = i.try_register_intent(skill_name, intent)
-            if intent_name != "":
-                self.handlers[intent_name] = handler
+            if intent_name is not None:
+                self.handlers[str(intent_name)] = lambda match: handler(match).set_name(intent_name)
                 return
-        print("Failed to register intent for " + make_namespaced(str(intent), skill_name))
+        print("Failed to register intent for " + str(IntentName(skill_name, str(intent))))
 
-    def register_fallback(self, handler):
+    def register_fallback(self, skill_name, handler):
         """
         Register a function to be called as a general knowledge fallback
 
         Args:
-            handler (obj): function that receives query and returns a
-                        dict of results, one of which is 'confidence'
-                        note: register_fallback in the MycroftSkill base class automatically manages results
+            handler (obj): function that receives query and returns a SkillResult
+                        note: register_fallback in the MycroftSkill base class automatically generates a SkillResult
         """
-        self.fallbacks.append(handler)
+        name = IntentName(skill_name, 'fallback')
+        self.fallbacks.append(lambda match: handler(match).set_name(name))
 
     def on_intents_loaded(self):
         for i in self.engines:
             i.on_intents_loaded()
 
-    def calc_results(self, query):
+    def calc_result(self, query):
         """
-        Find the best intent and run the handler to find the results
+        Find the best intent and run the handler to find the result
 
         Args:
             query (str): input sentence
         Returns:
-            name (str): namespaced intent
-            results (dict) : dictionary of the possible intent results
+            result (SkillResult): object containing data from skill
         """
 
-        query = query.strip()
+        query = query.strip().lower()
 
-        # A single intent result is a dict like the following example:
-        # { 'name': 'TimeSkill:time.ask', 'confidence': '0.65', 'matches': {'location': 'new york'} }
-        intent_results = {}
+        # A list of IntentMatch objects
+        intent_matches = []
 
-        def merge_results(new_intent_results):
-            """Merge new intent results with old ones, keeping ones with higher confidences"""
-            for skill, data in new_intent_results.items():
-                if skill in intent_results and intent_results[skill]['confidence'] > data['confidence']:
-                    continue
-                intent_results[skill] = data
+        def merge_matches(new_matches):
+            """Merge new matches with old ones, keeping ones with higher confidences"""
+            for new_match in new_matches:
+                found_match = False
+                for i in range(len(intent_matches)):
+                    if intent_matches[i].name == new_match.name:
+                        intent_matches[i] = IntentMatch.merge(intent_matches[i], new_match)
+                        found_match = True
+                        break
+                if not found_match:
+                    intent_matches.append(new_match)
 
         for i in self.engines:
-            merge_results(i.calc_intents(query))
+            merge_matches(i.calc_intents(query))
 
-        sorted_intents = [val for key, val in sorted(intent_results.items(),
-                                                     key=lambda kv: kv[1]['confidence'], reverse=True)]
-        intent_data = sorted_intents[0]
-        if intent_data['confidence'] > 0.5:
-            name = intent_data['name']
-            results, actions = self.handlers[name](intent_data)
-        else:
-            best_results = {'confidence': '0.0'}
-            best_actions = []
-            for fallback in self.fallbacks:
-                results, actions = fallback(query)
-                if float(results['confidence']) > float(best_results['confidence']):
-                    best_results = results
-                    best_actions = actions
+        to_test = [match for match in intent_matches if match.confidence > 0.5]
+        skill_results = []
+        for match in to_test:
+            skill_result = self.handlers[str(match.name)](match)
+            skill_result.confidence = sqrt(match.confidence * skill_result.confidence)
+            skill_results.append(skill_result)
 
-            name = 'UnknownSkill:unknown'
-            results = {}
-            actions = []
+        if len(skill_results) > 0:
+            best = max(enumerate(skill_results), key=lambda x: x[1].confidence)[1]
+            if best.confidence > 0.5:
+                return best
 
-            if float(best_results['confidence']) > 0.5:
-                name = make_namespaced('fallback', best_results['skill_name'])
-                results = best_results
-                actions = best_actions
-
-        return name, results, actions
+        fallback_results = [fallback(query) for fallback in self.fallbacks]
+        best = max(enumerate(fallback_results), key=lambda x: x[1].confidence)[1]
+        return best

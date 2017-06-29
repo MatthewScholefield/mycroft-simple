@@ -31,6 +31,7 @@ from mycroft.configuration import ConfigurationManager
 def init_mycroft(self):
     self.api = STTApi()
 
+
 init_callbacks = {
     'mycroft': init_mycroft
 }
@@ -44,6 +45,7 @@ def execute_mycroft(self, audio):
     if len(result) == 0:
         raise UnknownValueError
     return result[0]
+
 
 execute_callbacks = {
     'mycroft': execute_mycroft,

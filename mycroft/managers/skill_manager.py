@@ -22,12 +22,9 @@
 # under the License.
 #
 import re
-from os import listdir
-
 import sys
-
+from os import listdir
 from os.path import isdir, join, dirname
-
 from subprocess import call
 
 from mycroft.util import to_camel
@@ -55,6 +52,7 @@ class SkillManager:
             weather_skill/
                 skill.py - class WeatherSkill(MycroftSkill):
         """
+
         def cmd(a):
             call(a.split(' '))
 

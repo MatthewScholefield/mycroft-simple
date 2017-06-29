@@ -24,6 +24,7 @@
 import json
 import os
 import subprocess
+from time import time
 from os import chdir, getcwd
 from os.path import isfile, isdir
 from subprocess import Popen, call
@@ -31,13 +32,15 @@ from threading import Event, Thread
 
 from websocket_server import WebsocketServer
 
-from mycroft.engines.intent_engine import IntentEngine, make_namespaced
+from mycroft.engines.intent_engine import IntentEngine, IntentMatch
+from mycroft.mycroft_skill import IntentName
 
 
 class PadatiousEngine(IntentEngine):
     """Interface for Padatious intent engine"""
     GIT_URL = 'https://github.com/MatthewScholefield/padatious-mycroft.git'
     GIT_BRANCH = 'feature/mycroft-simple'
+    GIT_UPDATE_FREQUENCY = 1  # In hours
     HOST = '127.0.0.1'
     PORT = 8014
 
@@ -48,8 +51,17 @@ class PadatiousEngine(IntentEngine):
         self.new_message = None
         self.new_message_event = Event()
 
-        if not isfile(self.path_manager.padatious_exe):
+        exe = self.path_manager.padatious_exe
+        if not isfile(exe):
             self._build()
+
+        stat = os.stat(exe)
+        if time() - stat.st_mtime > self.GIT_UPDATE_FREQUENCY * 60 * 60:
+            # Touch file
+            with open(exe, 'a'):
+                os.utime(exe)
+
+            self._build(True)
 
         self.server, connected_event = self._create_server()
         self._start_server()
@@ -57,14 +69,15 @@ class PadatiousEngine(IntentEngine):
         if not connected_event.wait(4):
             raise TimeoutError('Could not connect websocket to Padatious')
 
-    def _build(self):
+    def _build(self, update=False):
 
         if not isdir(self.path_manager.padatious_dir):
-            call(['git', 'clone', '-b', self.GIT_BRANCH, '--single-branch', self.GIT_URL, self.path_manager.padatious_dir])
+            call(['git', 'clone', '-b', self.GIT_BRANCH, '--single-branch', self.GIT_URL,
+                  self.path_manager.padatious_dir])
         cur_path = getcwd()
         try:
             chdir(self.path_manager.padatious_dir)
-            call(['sh', 'build.sh'])
+            call(['sh', 'build.sh', 'update' if update else ''])
         finally:
             chdir(cur_path)
 
@@ -100,14 +113,14 @@ class PadatiousEngine(IntentEngine):
 
     def try_register_intent(self, skill_name, intent_name):
         if not isinstance(intent_name, str):
-            return ""
+            return None
         intent_dir = self.path_manager.intent_dir(skill_name)
         file_name = os.path.join(intent_dir, intent_name + '.intent')
         if not os.path.isfile(file_name):
-            return ""
+            return None
 
-        name = make_namespaced(intent_name, skill_name)
-        self._send_request('register_intent', {'name': name, 'file_name': file_name})
+        name = IntentName(skill_name, intent_name)
+        self._send_request('register_intent', {'name': str(name), 'file_name': file_name})
         return name
 
     def on_intents_loaded(self):
@@ -118,4 +131,5 @@ class PadatiousEngine(IntentEngine):
         self._send_request('calc_intents', {'query': query})
         if not self.new_message_event.wait(4):
             raise TimeoutError('When asking to calculate intents from Padatious')
-        return json.loads(self.new_message)
+        match_dicts = json.loads(self.new_message)['matches']
+        return [IntentMatch.from_dict(i) for i in match_dicts]
