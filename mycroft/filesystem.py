@@ -49,12 +49,14 @@ class FileSystemAccess:
         Get a handle to a file (with the provided mode) within the
         skill-specific namespace.
 
-        :param filename: a str representing a path relative to the namespace.
+        Args:
+         filename (str): a str representing a path relative to the namespace.
             subdirs not currently supported.
 
-        :param mode: a file handle mode
+        mode (str): a file handle mode
 
-        :return: an open file handle.
+        Returns:
+             an open file handle
         """
         file_path = join(self.path, filename)
         return open(file_path, mode)
