@@ -55,7 +55,7 @@ class FileSystemAccess:
 
             mode (str): a file handle mode
 
-        Retruns:
+        Returns:
             obj: an open file handle.
         """
         file_path = join(self.path, filename)

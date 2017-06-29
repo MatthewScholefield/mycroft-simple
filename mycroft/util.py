@@ -76,6 +76,7 @@ class logger:
         logger.debug('My message: %s', debug_str)
         logger('custom_name').debug('Another message')
     """
+
     _custom_name = None
     @staticmethod
     def init(config):

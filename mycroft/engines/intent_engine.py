@@ -64,6 +64,7 @@ class IntentEngine(metaclass=ABCMeta):
             intent (dict): Dictionary where the key is the intent name and
             the value is data associated with that intent.
 
+
         Example return data:
         { 'name': 'TimeSkill:time.ask', 'confidence': '0.65', 'matches': {'location': 'new york'} }
         """
