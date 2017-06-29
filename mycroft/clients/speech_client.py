@@ -23,28 +23,61 @@
 #
 from threading import Event
 
+from speech_recognition import UnknownValueError
+
 from mycroft.clients.mycroft_client import MycroftClient
+from mycroft.clients.speech.recognizers.pocketsphinx_recognizer import PocketsphinxListener
+from mycroft.clients.speech.stt import STT
+from mycroft.clients.speech.tts.mimic_tts import MimicTTS
+from mycroft.configuration import ConfigurationManager
 from mycroft import mycroft_thread
+from mycroft.util import logger
 
 
-class TextClient(MycroftClient):
+class SpeechClient(MycroftClient):
     """Interact with Mycroft via a terminal"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.exit = False
         self.response_event = Event()
+        self.listener = self.create_listener(self.path_manager)
+        self.stt = STT()
+        self.tts = MimicTTS(self.path_manager)
+
+    def create_listener(self, path_manager):
+        global_config = ConfigurationManager.get()
+        t = global_config['listener']['type']
+        if t == 'PocketsphinxListener':
+            return PocketsphinxListener(path_manager, global_config)
+        else:
+            raise ValueError
 
     def run(self):
         while not mycroft_thread.exit_event.is_set():
-            query = input("Input: ")
-            self.response_event.clear()
-            self.send_query(query)
+            logger.debug('Waiting for wake word...')
+            self.listener.wait_for_wake_word()
+            logger.debug('Recording...')
+            recording = self.listener.record_phrase()
+            logger.debug('Done recording.')
+            if self.exit:
+                break
+            try:
+                utterance = self.stt.execute(recording)
+                logger.debug('Utterance: ' + utterance)
+            except UnknownValueError:
+                utterance = ''
+
+            self.send_query(utterance)
             self.response_event.wait()
 
     def on_response(self, format_manager):
         if format_manager is not None:
             dialog = format_manager.as_dialog
             if len(dialog) > 0:
-                print("    " + dialog)
-                print()
+                self.tts.speak(dialog)
         self.response_event.set()
+
+    def on_exit(self):
+        self.exit = True
+        self.listener.on_exit()

@@ -49,7 +49,7 @@ class PadatiousEngine(IntentEngine):
         self.new_message_event = Event()
 
         if not isfile(self.path_manager.padatious_exe):
-            self._build_padatious()
+            self._build()
 
         self.server, connected_event = self._create_server()
         self._start_server()
@@ -57,7 +57,7 @@ class PadatiousEngine(IntentEngine):
         if not connected_event.wait(4):
             raise TimeoutError('Could not connect websocket to Padatious')
 
-    def _build_padatious(self):
+    def _build(self):
 
         if not isdir(self.path_manager.padatious_dir):
             call(['git', 'clone', '-b', self.GIT_BRANCH, '--single-branch', self.GIT_URL, self.path_manager.padatious_dir])
