@@ -39,7 +39,7 @@ from mycroft.managers.intent_manager import IntentManager
 from mycroft.managers.path_manager import PathManager
 from mycroft.managers.query_manager import QueryManager
 from mycroft.managers.skill_manager import SkillManager
-from mycroft.util import init_logging
+from mycroft.util import logger
 
 
 def try_pair():
@@ -52,7 +52,7 @@ def try_pair():
 
 
 def main():
-    init_logging(ConfigurationManager.get())
+    logger.init(ConfigurationManager.get())
 
     path_manager = PathManager()
     intent_manager = IntentManager(path_manager)

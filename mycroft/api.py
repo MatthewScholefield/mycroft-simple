@@ -28,7 +28,7 @@ from requests import HTTPError
 
 from mycroft.configuration import ConfigurationManager
 from mycroft.identity import IdentityManager
-from mycroft.util import get_logger
+from mycroft.util import logger
 from mycroft.version import VersionManager
 
 __paired_cache = False

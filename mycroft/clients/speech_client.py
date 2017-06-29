@@ -31,9 +31,7 @@ from mycroft.clients.speech.stt import STT
 from mycroft.clients.speech.tts.mimic_tts import MimicTTS
 from mycroft.configuration import ConfigurationManager
 from mycroft import mycroft_thread
-from mycroft.util import get_logger
-
-logger = get_logger()
+from mycroft.util import logger
 
 
 class SpeechClient(MycroftClient):
