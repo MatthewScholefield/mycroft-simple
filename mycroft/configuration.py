@@ -26,9 +26,7 @@ import re
 from genericpath import exists, isfile
 from os.path import join, dirname, expanduser
 
-from mycroft.util import get_logger, to_snake
-
-LOG = get_logger()
+from mycroft.util import logger, to_snake
 
 DEFAULT_CONFIG = join(dirname(__file__), "mycroft.conf")
 SYSTEM_CONFIG = '/etc/mycroft/mycroft.conf'
@@ -80,9 +78,9 @@ class ConfigurationLoader:
     @staticmethod
     def validate(config=None, locations=None):
         if not (isinstance(config, dict) and isinstance(locations, list)):
-            LOG.error("Invalid configuration data type.")
-            LOG.error("Locations: %s" % locations)
-            LOG.error("Configuration: %s" % config)
+            logger.error("Invalid configuration data type.")
+            logger.error("Locations: %s" % locations)
+            logger.error("Configuration: %s" % config)
             raise TypeError
 
     @staticmethod
@@ -123,12 +121,12 @@ class ConfigurationLoader:
                 with open(location, 'r') as conf_file:
                     ConfigurationLoader.merge_conf(
                         config, yaml.load(conf_file))
-                LOG.debug("Configuration '%s' loaded" % location)
+                logger.debug("Configuration '%s' loaded" % location)
             except Exception as e:
-                LOG.error("Error loading configuration '%s'" % location)
-                LOG.error(repr(e))
+                logger.error("Error loading configuration '%s'" % location)
+                logger.error(repr(e))
         else:
-            LOG.debug("Configuration '%s' not found" % location)
+            logger.debug("Configuration '%s' not found" % location)
         return config
 
 
@@ -143,7 +141,7 @@ class RemoteConfiguration:
     @staticmethod
     def validate(config):
         if not (config and isinstance(config, dict)):
-            LOG.error("Invalid configuration: %s" % config)
+            logger.error("Invalid configuration: %s" % config)
             raise TypeError
 
     @staticmethod
@@ -155,18 +153,18 @@ class RemoteConfiguration:
             try:
                 from mycroft.api import DeviceApi
                 api = DeviceApi()
-                setting = api.find_setting()
-                location = api.find_location()
+                setting = api.get_settings()
+                location = api.get_location()
                 if location:
                     setting["location"] = location
                 RemoteConfiguration.__load(config, setting)
                 RemoteConfiguration.__store_cache(setting)
             except Exception as e:
-                LOG.warn("Failed to fetch remote configuration: %s" % repr(e))
+                logger.warning("Failed to fetch remote configuration: %s" % repr(e))
                 RemoteConfiguration.__load_cache(config)
 
         else:
-            LOG.debug("Remote configuration not activated.")
+            logger.debug("Remote configuration not activated.")
         return config
 
     @staticmethod
@@ -204,7 +202,7 @@ class RemoteConfiguration:
         """
             Load cache from file
         """
-        LOG.info("Using cached configuration if available")
+        logger.info("Using cached configuration if available")
         ConfigurationLoader.load(config,
                                  [RemoteConfiguration.WEB_CONFIG_CACHE],
                                  False)
@@ -247,7 +245,7 @@ class ConfigurationManager:
     @staticmethod
     def load_defaults():
         for location in load_order:
-            LOG.info("Loading configuration: " + location)
+            logger.info("Loading configuration: " + location)
             if location == REMOTE_CONFIG:
                 RemoteConfiguration.load(ConfigurationManager.__config)
             else:

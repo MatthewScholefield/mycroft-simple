@@ -28,16 +28,13 @@ class ClientManager:
     """Holds all clients to start and stop them"""
 
     def __init__(self, client_classes, *args, **kwargs):
-
         self.clients = [i(*args, **kwargs) for i in client_classes]
-        self.client_threads = [Thread(target=client.run) for client in self.clients]
 
     def start(self):
         """Starts all clients in different threads (non blocking)"""
-        for i in self.client_threads:
-            i.start()
+        for client in self.clients:
+            Thread(target=client.run, daemon=True).start()
 
-    def quit(self):
-        """Sends a signal to all clients to quit. Does not wait for clients to exit (non blocking)"""
+    def on_exit(self):
         for i in self.clients:
-            i.quit()
+            i.on_exit()

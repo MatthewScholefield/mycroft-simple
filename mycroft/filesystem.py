@@ -50,13 +50,13 @@ class FileSystemAccess:
         skill-specific namespace.
 
         Args:
-         filename (str): a str representing a path relative to the namespace.
+            filename (str): a str representing a path relative to the namespace.
             subdirs not currently supported.
 
-        mode (str): a file handle mode
+            mode (str): a file handle mode
 
         Returns:
-             an open file handle
+            obj: an open file handle.
         """
         file_path = join(self.path, filename)
         return open(file_path, mode)
