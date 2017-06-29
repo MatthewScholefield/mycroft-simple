@@ -61,7 +61,8 @@ class IntentEngine(metaclass=ABCMeta):
         Args:
             query (str): input sentence as a single string
         Returns:
-            intent (dict): intent_data where
+            intent (dict): Dictionary where the key is the intent name and
+            the value is data associated with that intent.
 
         Example return data:
         { 'name': 'TimeSkill:time.ask', 'confidence': '0.65', 'matches': {'location': 'new york'} }
