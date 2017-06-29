@@ -49,8 +49,8 @@ class IntentEngine(metaclass=ABCMeta):
     def try_register_intent(*args, **kwargs):
         """
         Attempt to register intent with given arguments
-        :rtype str
-        :returns intent name if parsed parameters, otherwise ""
+        Returns:
+            name (str): intent name if parsed parameters, otherwise ""
         """
         pass
 
@@ -58,8 +58,11 @@ class IntentEngine(metaclass=ABCMeta):
     def calc_intents(self, query):
         """
         Run the intent engine to determine the probability of each intent against the query
-        :param query: input sentence as a single string
-        :return: dict of intent: intent_data where
+        Args:
+            query (str): input sentence as a single string
+        Returns:
+            intent (dict): Dictionary where the key is the intent name and
+            the value is data associated with that intent.
 
         Example return data:
         { 'name': 'TimeSkill:time.ask', 'confidence': '0.65', 'matches': {'location': 'new york'} }

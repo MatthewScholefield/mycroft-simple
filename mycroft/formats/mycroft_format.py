@@ -41,9 +41,8 @@ class MycroftFormat(metaclass=ABCMeta):
         """
         Internally format the data from the results
         Depending on the format, this can be accessed different ways
-
-        :param name: namespaced intent name
-        :param results: dict containing all data from the skill
-        :returns: nothing
+        Args:
+            name (str): namespaced intent name
+            results (dict): dict containing all data from the skill
         """
         pass
