@@ -21,15 +21,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from threading import Event
 
-
-_quit_action = None
-
-
-def set_quit_action(callback):
-    global _quit_action
-    _quit_action = callback
+exit_event = Event()
 
 
 def quit():
-    _quit_action()
+    exit_event.set()
+
+
+def wait_for_quit():
+    exit_event.wait()

@@ -30,7 +30,8 @@ class MycroftClient(metaclass=ABCMeta):
     Examples clients include the voice client and text client
     """
 
-    def __init__(self, query_manager):
+    def __init__(self, path_manager, query_manager):
+        self.path_manager = path_manager
         self._query_manager = query_manager
         self._query_manager.on_response(self.on_response)
 
@@ -44,11 +45,9 @@ class MycroftClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def quit(self):
-        """Should send a signal to stop the main thread of the client"""
-        pass
-
-    @abstractmethod
     def on_response(self, format_manager):
         """Called after send_query. Use format_manager to get outputted response"""
+        pass
+
+    def on_exit(self):
         pass

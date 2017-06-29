@@ -29,18 +29,28 @@ from mycroft.util import to_snake
 class PathManager:
     """Retreives directories and files used by Mycroft"""
 
-    def __init__(self, base_path):
-        self.base_path = base_path
+    def __init__(self):
         self.lang = 'en-us'
-
-    @property
-    def _mod_dir(self):
-        """Mycroft module directory"""
-        return join(self.base_path, 'mycroft')
 
     @property
     def user_dir(self):
         return join(expanduser('~'), '.mycroft')
+
+    @property
+    def mimic_dir(self):
+        return join(self.user_dir, 'mimic')
+
+    @property
+    def mimic_exe(self):
+        return join(self.mimic_dir, 'mimic')
+
+    @property
+    def model_dir_no_lang(self):
+        return join(self.user_dir, 'model')
+
+    @property
+    def model_dir(self):
+        return join(self.model_dir_no_lang, self.lang)
 
     @property
     def padatious_dir(self):

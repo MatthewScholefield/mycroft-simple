@@ -21,34 +21,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import json
-from genericpath import exists, isfile
-
-from mycroft.util import logger
-
-# The following lines are replaced during the release process.
-# START_VERSION_BLOCK
-CORE_VERSION_MAJOR = 0
-CORE_VERSION_MINOR = 8
-CORE_VERSION_BUILD = 16
-# END_VERSION_BLOCK
-
-CORE_VERSION_STR = (str(CORE_VERSION_MAJOR) + "." +
-                    str(CORE_VERSION_MINOR) + "." +
-                    str(CORE_VERSION_BUILD))
+from abc import ABCMeta, abstractmethod
 
 
-class VersionManager:
-    __location = "/opt/mycroft/version.json"
+class MycroftTTS(metaclass=ABCMeta):
+    def __init__(self, path_manager):
+        self.path_manager = path_manager
 
-    @staticmethod
-    def get():
-        if (exists(VersionManager.__location) and
-                isfile(VersionManager.__location)):
-            try:
-                with open(VersionManager.__location) as f:
-                    return json.load(f)
-            except:
-                logger.error("Failed to load version from '%s'"
-                          % VersionManager.__location)
-        return {"coreVersion": None, "enclosureVersion": None}
+    @abstractmethod
+    def speak(self, text):
+        """Blocking method that speaks a message"""
+        pass

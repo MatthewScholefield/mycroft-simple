@@ -16,7 +16,8 @@ sys.path.insert(0, os.path.abspath('../'))
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages',
+    'sphinx.ext.napoleon']
 
 templates_path = ['_templates']
 source_suffix = '.rst'
@@ -74,5 +75,11 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+# -- Options for Napoleon.-------------------------------------------------
+
+# -- Either use google-style or numpy style docstrings --------------------
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
 
 

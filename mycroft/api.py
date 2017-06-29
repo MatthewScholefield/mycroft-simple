@@ -28,7 +28,7 @@ from requests import HTTPError
 
 from mycroft.configuration import ConfigurationManager
 from mycroft.identity import IdentityManager
-from mycroft.util import get_logger
+from mycroft.util import logger
 from mycroft.version import VersionManager
 
 __paired_cache = False
@@ -182,21 +182,6 @@ class DeviceApi(Api):
         return self.request({
             "path": "/" + self.identity.uuid + "/location"
         })
-
-    def find(self):
-        """ Deprecated, see get_location() """
-        # TODO: Eliminate ASAP, for backwards compatibility only
-        return self.get()
-
-    def find_setting(self):
-        """ Deprecated, see get_settings() """
-        # TODO: Eliminate ASAP, for backwards compatibility only
-        return self.get_settings()
-
-    def find_location(self):
-        """ Deprecated, see get_location() """
-        # TODO: Eliminate ASAP, for backwards compatibility only
-        return self.get_location()
 
 
 class STTApi(Api):
