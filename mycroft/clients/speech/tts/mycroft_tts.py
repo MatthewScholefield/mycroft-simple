@@ -24,30 +24,11 @@
 from abc import ABCMeta, abstractmethod
 
 
-class MycroftClient(metaclass=ABCMeta):
-    """
-    Provides common behavior like sending and receiving queries
-    Examples clients include the voice client and text client
-    """
-
-    def __init__(self, path_manager, query_manager):
+class MycroftTTS(metaclass=ABCMeta):
+    def __init__(self, path_manager):
         self.path_manager = path_manager
-        self._query_manager = query_manager
-        self._query_manager.on_response(self.on_response)
-
-    def send_query(self, query):
-        """Ask a question and trigger on_response when an answer is found"""
-        self._query_manager.send_query(query)
 
     @abstractmethod
-    def run(self):
-        """Executes the main thread for the client"""
-        pass
-
-    @abstractmethod
-    def on_response(self, format_manager):
-        """Called after send_query. Use format_manager to get outputted response"""
-        pass
-
-    def on_exit(self):
+    def speak(self, text):
+        """Blocking method that speaks a message"""
         pass

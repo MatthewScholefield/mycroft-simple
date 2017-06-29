@@ -183,21 +183,6 @@ class DeviceApi(Api):
             "path": "/" + self.identity.uuid + "/location"
         })
 
-    def find(self):
-        """ Deprecated, see get_location() """
-        # TODO: Eliminate ASAP, for backwards compatibility only
-        return self.get()
-
-    def find_setting(self):
-        """ Deprecated, see get_settings() """
-        # TODO: Eliminate ASAP, for backwards compatibility only
-        return self.get_settings()
-
-    def find_location(self):
-        """ Deprecated, see get_location() """
-        # TODO: Eliminate ASAP, for backwards compatibility only
-        return self.get_location()
-
 
 class STTApi(Api):
     """ Web API wrapper for performing Speech to Text (STT) """

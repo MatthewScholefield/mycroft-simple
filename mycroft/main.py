@@ -31,6 +31,7 @@ sys.path.append(os.path.abspath('.'))
 from mycroft import mycroft_thread
 from mycroft.api import is_paired
 from mycroft.configuration import ConfigurationManager
+from mycroft.clients.speech_client import SpeechClient
 from mycroft.clients.text_client import TextClient
 from mycroft.managers.client_manager import ClientManager
 from mycroft.managers.format_manager import FormatManager
@@ -53,20 +54,22 @@ def try_pair():
 def main():
     init_logging(ConfigurationManager.get())
 
-    path_manager = PathManager(os.getcwd())
+    path_manager = PathManager()
     intent_manager = IntentManager(path_manager)
     format_manager = FormatManager(path_manager)
     query_manager = QueryManager(intent_manager, format_manager)
     skill_manager = SkillManager(intent_manager, path_manager, query_manager)
-    client_manager = ClientManager([TextClient], query_manager)
+    client_manager = ClientManager([TextClient, SpeechClient], path_manager, query_manager)
 
     skill_manager.load_skills()
     intent_manager.on_intents_loaded()
-
     try_pair()
 
     client_manager.start()
-    mycroft_thread.set_quit_action(client_manager.quit)
+    try:
+        mycroft_thread.wait_for_quit()
+    finally:
+        client_manager.on_exit()
 
 
 if __name__ == "__main__":

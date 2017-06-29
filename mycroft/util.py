@@ -23,6 +23,8 @@
 #
 import logging
 import inspect
+from ctypes import *
+from contextlib import contextmanager
 
 
 def to_camel(snake):
@@ -88,4 +90,24 @@ def get_logger(name=None):
             name = 'mycroft'
 
     return logging.getLogger(name)
+
+
+@contextmanager
+def redirect_alsa_errors():
+    """
+    Redirects ALSA errors to logger rather than stdout
+    Usage:
+        with redirect_alsa_errors():
+            do_something_that_generates_alsa_errors()
+    """
+    func_type = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
+
+    def alsa_err_handler(filename, line, function, err, fmt):
+        get_logger('alsa').debug(filename.decode() + ':' + function.decode() + ', ' + fmt.decode())
+        pass
+
+    asound = cdll.LoadLibrary('libasound.so')
+    asound.snd_lib_error_set_handler(func_type(alsa_err_handler))
+    yield
+    asound.snd_lib_error_set_handler(None)
 

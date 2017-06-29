@@ -19,7 +19,9 @@ setup(name='mycroft_simple',
       install_requires=[
           'websocket_server>=0.4',
           'PyYAML>=3.12',
-          'requests>=2.18.1'
+          'requests>=2.18.1',
+          'pocketsphinx>=0.1.3',
+          'SpeechRecognition>=3.7.1'
       ],
       entry_points={
           'console_scripts': [
