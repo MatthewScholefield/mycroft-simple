@@ -22,10 +22,15 @@ setup(name='mycroft_simple',
       install_requires=[
           'websocket_server>=0.4',
           'PyYAML>=3.12',
-          'requests>=2.18.1',
+          'requests>=2.13.0',
           'pocketsphinx>=0.1.3',
           'SpeechRecognition>=3.7.1',
-          'PyAudio>=0.2.11'
+          'PyAudio>=0.2.11',
+
+          # Skill dependencies
+          'multi-key-dict>=2.0.3',
+          'pyowm==2.6.1',
+          'ddg3==0.6.5'
       ],
       entry_points={
           'console_scripts': [
