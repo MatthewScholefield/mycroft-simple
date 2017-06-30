@@ -61,6 +61,7 @@ class GitRepo:
     def try_pull(self):
         if not isdir(self.dir):
             self._clone()
+            return True
 
         git_folder = join(self.dir, '.git')
         stat = os.stat(git_folder)
