@@ -21,43 +21,31 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os import chdir, getcwd, mkdir
-from os.path import isdir, isfile, join
+from os.path import join
 from subprocess import call
 
 from mycroft.clients.speech.tts.mycroft_tts import MycroftTTS
+from mycroft.util.git_repo import GitRepo
 
 
 class MimicTTS(MycroftTTS):
-    GIT_URL = 'https://github.com/MycroftAI/mimic.git'
-    VERSION = '1.2.0.2'
-
-    SCRIPT_URL = 'https://github.com/MatthewScholefield/mycroft-simple.git'
-    SCRIPT_BRANCH = 'mimic-script'
-
     def __init__(self, path_manager):
         super().__init__(path_manager)
 
-        if not isfile(self.path_manager.mimic_exe):
-            self._build()
+        self.mimic_repo = GitRepo(dir=self.path_manager.mimic_dir,
+                                  url='https://github.com/MycroftAI/mimic.git',
+                                  branch='1.2.0.2',
+                                  update_freq=24)
+        self.script_repo = GitRepo(dir=join(self.mimic_repo.dir, 'scripts'),
+                                   url='https://github.com/MatthewScholefield/mycroft-simple.git',
+                                   branch='mimic-script',
+                                   update_freq=24)
 
-    def _build(self):
-        mimic_dir = self.path_manager.mimic_dir
-        if not isdir(mimic_dir):
-            mkdir(mimic_dir)
-        cur_path = getcwd()
-        try:
-            chdir(mimic_dir)
+        mimic_change = self.mimic_repo.try_pull()
+        script_change = self.script_repo.try_pull()
 
-            if not isdir('.git'):
-                pass
-
-            if not isdir('scripts'):
-                call(['git', 'clone', '-b', self.SCRIPT_BRANCH, '--single-branch', self.SCRIPT_URL, 'scripts'])
-
-            call(['sh', join('scripts', 'build-mimic.sh')])
-        finally:
-            chdir(cur_path)
+        if mimic_change or script_change:
+            self.mimic_repo.run_inside(['sh', join('scripts', 'build-mimic.sh')])
 
     def speak(self, text):
         call([self.path_manager.mimic_exe, '-t', text])
