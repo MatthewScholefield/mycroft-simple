@@ -100,7 +100,7 @@ class MycroftListener(metaclass=ABCMeta):
 
             if self.exit:
                 self.exit_event.set()
-                return
+                raise SystemExit
 
     def update_energy(self, energy):
         """Updates internal state with energy. Calculates average energy, noise level, and integral"""

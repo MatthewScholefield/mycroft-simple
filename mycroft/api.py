@@ -22,7 +22,6 @@
 # under the License.
 #
 from copy import copy
-from json.decoder import JSONDecodeError
 
 import requests
 from requests import HTTPError
@@ -91,7 +90,7 @@ class Api:
     def get_data(self, response):
         try:
             return response.json()
-        except JSONDecodeError:
+        except ValueError:
             return response.text
 
     def build_headers(self, params):

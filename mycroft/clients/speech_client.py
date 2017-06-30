@@ -23,9 +23,11 @@
 #
 from threading import Event
 
+from os.path import join, abspath, dirname
 from speech_recognition import UnknownValueError
 
 from mycroft import mycroft_thread
+from mycroft.audio import play_audio
 from mycroft.clients.mycroft_client import MycroftClient
 from mycroft.clients.speech.recognizers.pocketsphinx_recognizer import PocketsphinxListener
 from mycroft.clients.speech.stt import STT
@@ -41,35 +43,41 @@ class SpeechClient(MycroftClient):
         super().__init__(*args, **kwargs)
         self.exit = False
         self.response_event = Event()
+        self.global_config = ConfigurationManager.get()
         self.listener = self.create_listener(self.path_manager)
         self.stt = STT()
         self.tts = MimicTTS(self.path_manager)
+        root = abspath(dirname(__file__))
+        self.start_listening_file = join(root, 'speech', 'sounds', self.global_config['sounds']['start_listening'])
+        self.stop_listening_file = join(root, 'speech', 'sounds', self.global_config['sounds']['stop_listening'])
 
     def create_listener(self, path_manager):
-        global_config = ConfigurationManager.get()
-        t = global_config['listener']['type']
+        t = self.global_config['listener']['type']
         if t == 'PocketsphinxListener':
-            return PocketsphinxListener(path_manager, global_config)
+            return PocketsphinxListener(path_manager, self.global_config)
         else:
             raise ValueError
 
     def run(self):
-        while not mycroft_thread.exit_event.is_set():
-            logger.debug('Waiting for wake word...')
-            self.listener.wait_for_wake_word()
-            logger.debug('Recording...')
-            recording = self.listener.record_phrase()
-            logger.debug('Done recording.')
-            if self.exit:
-                break
-            try:
-                utterance = self.stt.execute(recording)
-                logger.debug('Utterance: ' + utterance)
-            except UnknownValueError:
-                utterance = ''
+        try:
+            while not mycroft_thread.exit_event.is_set():
+                logger.debug('Waiting for wake word...')
+                self.listener.wait_for_wake_word()
+                logger.debug('Recording...')
+                play_audio(self.start_listening_file)
+                recording = self.listener.record_phrase()
+                play_audio(self.stop_listening_file)
+                logger.debug('Done recording.')
+                try:
+                    utterance = self.stt.execute(recording)
+                    logger.debug('Utterance: ' + utterance)
+                except UnknownValueError:
+                    utterance = ''
 
-            self.send_query(utterance)
-            self.response_event.wait()
+                self.send_query(utterance)
+                self.response_event.wait()
+        except SystemExit:
+            pass
 
     def on_response(self, format_manager):
         if format_manager is not None:

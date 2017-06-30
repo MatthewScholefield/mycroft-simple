@@ -12,6 +12,9 @@ setup(name='mycroft_simple',
       packages=[
           'mycroft',
           'mycroft.clients',
+          'mycroft.clients.speech',
+          'mycroft.clients.speech.recognizers',
+          'mycroft.clients.speech.tts',
           'mycroft.engines',
           'mycroft.formats',
           'mycroft.managers'
@@ -28,6 +31,5 @@ setup(name='mycroft_simple',
               'mycroft_simple = mycroft.main:main'
           ]
       },
-      package_data={'mycroft': ['mycroft.conf']},
       include_package_data=True,
       zip_safe=False)
