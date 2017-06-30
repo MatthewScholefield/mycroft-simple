@@ -24,7 +24,8 @@ setup(name='mycroft_simple',
           'PyYAML>=3.12',
           'requests>=2.18.1',
           'pocketsphinx>=0.1.3',
-          'SpeechRecognition>=3.7.1'
+          'SpeechRecognition>=3.7.1',
+          'PyAudio>=0.2.11'
       ],
       entry_points={
           'console_scripts': [
