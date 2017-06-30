@@ -64,7 +64,7 @@ class MycroftSkill:
         self._query_manager = query_manager
         self._results = {}
         self._actions = []
-        self._ignore_results = False
+        self._ignore_data = False
 
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
@@ -89,8 +89,8 @@ class MycroftSkill:
             self._results.clear()
             self._actions.clear()
 
-            if self._ignore_results:
-                self._ignore_results = False
+            if self._ignore_data:
+                self._ignore_data = False
                 result.data = None
 
             return result
@@ -102,6 +102,9 @@ class MycroftSkill:
         result = SkillResult(IntentName(self.skill_name, intent))
         result.data = self._results.copy()
         result.actions = self._actions.copy()
+        if self._ignore_data:
+            self._ignore_data = False
+            result.data = None
         self._results.clear()
         self._actions.clear()
         self._query_manager.send_result(result)
@@ -189,7 +192,7 @@ class MycroftSkill:
         to change the outputted dialog under certain conditions
         """
         self._actions = [IntentName(self.skill_name, action)]
-        self._ignore_results = True
+        self._ignore_data = True
 
 
 class ScheduledSkill(MycroftSkill):
