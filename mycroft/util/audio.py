@@ -21,30 +21,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from threading import Event
+from subprocess import Popen, PIPE
 
-from mycroft import main_thread
-from mycroft.clients.mycroft_client import MycroftClient
+from mycroft.configuration import ConfigurationManager
 
 
-class TextClient(MycroftClient):
-    """Interact with Mycroft via a terminal"""
+def play_wav(file_name):
+    cmd = ConfigurationManager.get().get('play_wav_cmdline').replace('%1', file_name)
+    return Popen(cmd.split(), stdout=PIPE, stderr=PIPE)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.response_event = Event()
 
-    def run(self):
-        while not main_thread.exit_event.is_set():
-            query = input("Input: ")
-            self.response_event.clear()
-            self.send_query(query)
-            self.response_event.wait()
+def play_mp3(file_name):
+    cmd = ConfigurationManager.get().get('play_mp3_cmdline').replace('%1', file_name)
+    return Popen(cmd.split(), stdout=PIPE, stderr=PIPE)
 
-    def on_response(self, format_manager):
-        if format_manager is not None:
-            dialog = format_manager.as_dialog
-            if len(dialog) > 0:
-                print("    " + dialog)
-                print()
-        self.response_event.set()
+
+def play_audio(file_name):
+    ext = file_name.split('.')[-1]
+    if ext == 'wav':
+        return play_wav(file_name)
+    elif ext == 'mp3':
+        return play_mp3(file_name)
+    else:
+        raise ValueError('Unknown Extension: ' + ext)

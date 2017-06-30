@@ -25,7 +25,7 @@ from math import sqrt
 
 from mycroft.engines.intent_engine import IntentMatch
 from mycroft.engines.padatious_engine import PadatiousEngine
-from mycroft.mycroft_skill import IntentName
+from mycroft.skill import IntentName
 
 engine_classes = [PadatiousEngine]
 

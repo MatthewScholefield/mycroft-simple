@@ -21,19 +21,19 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from os.path import join, abspath, dirname
 from threading import Event
 
-from os.path import join, abspath, dirname
 from speech_recognition import UnknownValueError
 
-from mycroft import mycroft_thread
-from mycroft.audio import play_audio
+from mycroft import main_thread
 from mycroft.clients.mycroft_client import MycroftClient
 from mycroft.clients.speech.recognizers.pocketsphinx_recognizer import PocketsphinxListener
 from mycroft.clients.speech.stt import STT
 from mycroft.clients.speech.tts.mimic_tts import MimicTTS
 from mycroft.configuration import ConfigurationManager
 from mycroft.util import logger
+from mycroft.util.audio import play_audio
 
 
 class SpeechClient(MycroftClient):
@@ -60,7 +60,7 @@ class SpeechClient(MycroftClient):
 
     def run(self):
         try:
-            while not mycroft_thread.exit_event.is_set():
+            while not main_thread.exit_event.is_set():
                 logger.debug('Waiting for wake word...')
                 self.listener.wait_for_wake_word()
                 logger.debug('Recording...')

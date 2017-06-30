@@ -50,10 +50,7 @@ class MimicTTS(MycroftTTS):
             chdir(mimic_dir)
 
             if not isdir('.git'):
-                call(['git', 'init'])
-                call(['git', 'remote', 'add', 'origin', self.GIT_URL])
-                call(['git', 'fetch', 'origin', self.VERSION, '--depth', '1'])
-                call(['git', 'reset', '--hard', 'FETCH_HEAD'])
+                pass
 
             if not isdir('scripts'):
                 call(['git', 'clone', '-b', self.SCRIPT_BRANCH, '--single-branch', self.SCRIPT_URL, 'scripts'])

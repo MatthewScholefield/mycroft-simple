@@ -33,14 +33,12 @@ from threading import Event, Thread
 from websocket_server import WebsocketServer
 
 from mycroft.engines.intent_engine import IntentEngine, IntentMatch
-from mycroft.mycroft_skill import IntentName
+from mycroft.skill import IntentName
+from mycroft.util.git_repo import GitRepo
 
 
 class PadatiousEngine(IntentEngine):
     """Interface for Padatious intent engine"""
-    GIT_URL = 'https://github.com/MatthewScholefield/padatious-mycroft.git'
-    GIT_BRANCH = 'feature/mycroft-simple'
-    GIT_UPDATE_FREQUENCY = 1  # In hours
     HOST = '127.0.0.1'
     PORT = 8014
 
@@ -48,38 +46,21 @@ class PadatiousEngine(IntentEngine):
         """Opens Padatious process and waits for it to connect"""
         super().__init__(path_manager)
 
+        self.git_repo = GitRepo(dir=self.path_manager.padatious_dir,
+                                url='https://github.com/MatthewScholefield/padatious-mycroft.git',
+                                branch='feature/mycroft-simple',
+                                update_freq=1)
+        if self.git_repo.try_pull() or not isfile(self.path_manager.padatious_exe):
+            self.git_repo.run_inside('sh build.sh update')
+
         self.new_message = None
         self.new_message_event = Event()
-
-        exe = self.path_manager.padatious_exe
-        if not isfile(exe):
-            self._build()
-
-        stat = os.stat(exe)
-        if time() - stat.st_mtime > self.GIT_UPDATE_FREQUENCY * 60 * 60:
-            # Touch file
-            with open(exe, 'a'):
-                os.utime(exe)
-
-            self._build(True)
 
         self.server, connected_event = self._create_server()
         self._start_server()
         self.process = self._create_process()
         if not connected_event.wait(4):
             raise TimeoutError('Could not connect websocket to Padatious')
-
-    def _build(self, update=False):
-
-        if not isdir(self.path_manager.padatious_dir):
-            call(['git', 'clone', '-b', self.GIT_BRANCH, '--single-branch', self.GIT_URL,
-                  self.path_manager.padatious_dir])
-        cur_path = getcwd()
-        try:
-            chdir(self.path_manager.padatious_dir)
-            call(['sh', 'build.sh', 'update' if update else ''])
-        finally:
-            chdir(cur_path)
 
     def _create_server(self):
         """Creates a websocket server to communicate with the padatious process"""

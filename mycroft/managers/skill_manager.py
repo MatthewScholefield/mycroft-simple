@@ -28,18 +28,21 @@ from os.path import isdir, join, dirname
 from subprocess import call
 
 from mycroft.util import to_camel
+from mycroft.util.git_repo import GitRepo
 
 
 class SkillManager:
     """Dynamically loads skills"""
-    GIT_URL = 'https://github.com/MatthewScholefield/mycroft-simple.git'
-    GIT_BRANCH = 'skills'
 
     def __init__(self, intent_manager, path_manager, query_manager):
         self.intent_manager = intent_manager
         self.path_manager = path_manager
         self.query_manager = query_manager
         self.skills = []
+        self.git_repo = GitRepo(dir=self.path_manager.skills_dir,
+                                url='https://github.com/MatthewScholefield/mycroft-simple.git',
+                                branch='skills',
+                                update_freq=1)
 
     def load_skills(self):
         """
@@ -61,8 +64,7 @@ class SkillManager:
         if isdir(skills_dir) and not isdir(join(skills_dir, '.git')):
             call(['mv', skills_dir, join(dirname(skills_dir), 'skills-old')])
 
-        if not isdir(self.path_manager.skills_dir):
-            call(['git', 'clone', '-b', self.GIT_BRANCH, '--single-branch', self.GIT_URL, skills_dir])
+        self.git_repo.try_pull()
         # End temporary
 
         sys.path.append(self.path_manager.skills_dir)

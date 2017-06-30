@@ -28,7 +28,6 @@ import sys
 
 sys.path.append(os.path.abspath('.'))
 
-from mycroft import mycroft_thread
 from mycroft.api import is_paired
 from mycroft.configuration import ConfigurationManager
 from mycroft.clients.speech_client import SpeechClient
@@ -40,6 +39,7 @@ from mycroft.managers.path_manager import PathManager
 from mycroft.managers.query_manager import QueryManager
 from mycroft.managers.skill_manager import SkillManager
 from mycroft.util import logger
+from mycroft import main_thread
 
 
 def try_pair():
@@ -67,7 +67,7 @@ def main():
 
     client_manager.start()
     try:
-        mycroft_thread.wait_for_quit()
+        main_thread.wait_for_quit()
     finally:
         client_manager.on_exit()
 

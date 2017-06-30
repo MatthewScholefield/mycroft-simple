@@ -23,7 +23,7 @@
 #
 from abc import ABCMeta, abstractmethod
 
-from mycroft.mycroft_skill import IntentName
+from mycroft.skill import IntentName
 
 
 def extract_intent_name(namespaced_name):
