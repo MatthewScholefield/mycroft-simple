@@ -21,7 +21,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os.path import join
+from os.path import join, isfile
 from subprocess import call
 
 from mycroft.clients.speech.tts.mycroft_tts import MycroftTTS
@@ -44,7 +44,7 @@ class MimicTTS(MycroftTTS):
         mimic_change = self.mimic_repo.try_pull()
         script_change = self.script_repo.try_pull()
 
-        if mimic_change or script_change:
+        if mimic_change or script_change or not isfile(self.path_manager.mimic_exe):
             self.mimic_repo.run_inside(['sh', join('scripts', 'build-mimic.sh')])
 
     def speak(self, text):
