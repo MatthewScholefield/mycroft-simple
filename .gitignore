@@ -2,3 +2,4 @@
 __pycache__/
 padatious/
 mycroft_simple.egg-info/
+.installed_deps
