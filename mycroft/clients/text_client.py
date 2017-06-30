@@ -33,10 +33,12 @@ class TextClient(MycroftClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.response_event = Event()
+        self.response_event.set()
+        self.prompt = 'Input: '
 
     def run(self):
         while not main_thread.exit_event.is_set():
-            query = input("Input: ")
+            query = input(self.prompt)
             self.response_event.clear()
             self.send_query(query)
             self.response_event.wait()
@@ -45,6 +47,12 @@ class TextClient(MycroftClient):
         if format_manager is not None:
             dialog = format_manager.as_dialog
             if len(dialog) > 0:
+                prompt_drawn = self.response_event.is_set()
+
+                if prompt_drawn: print()
+                print()
                 print("    " + dialog)
                 print()
+                if prompt_drawn: print(self.prompt, end='', flush=True)
+
         self.response_event.set()
