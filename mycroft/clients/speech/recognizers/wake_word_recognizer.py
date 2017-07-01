@@ -43,8 +43,7 @@ class MycroftListener(metaclass=ABCMeta):
         self.sample_rate = config['sample_rate']
         self.channels = config['channels']
 
-        with redirect_alsa_errors():
-            self.p = pyaudio.PyAudio()
+        self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=self.format, channels=self.channels,
                                   rate=self.sample_rate, input=True, frames_per_buffer=self.chunk_size)
 

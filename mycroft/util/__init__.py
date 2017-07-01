@@ -143,7 +143,6 @@ def redirect_alsa_errors():
 
     def alsa_err_handler(filename, line, function, err, fmt):
         logger('alsa').debug(filename.decode() + ':' + function.decode() + ', ' + fmt.decode())
-        pass
 
     asound = cdll.LoadLibrary('libasound.so')
     asound.snd_lib_error_set_handler(func_type(alsa_err_handler))
