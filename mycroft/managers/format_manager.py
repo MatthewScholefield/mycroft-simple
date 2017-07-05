@@ -22,14 +22,27 @@
 # under the License.
 #
 from mycroft.formats.dialog_format import DialogFormat
+from mycroft.formats.faceplate_format import FaceplateFormat
+from mycroft.util import logger
 
 
 class FormatManager:
     """Holds all formats and provides an interface to access them"""
 
     def __init__(self, path_manager):
-        self.dialog_format = DialogFormat(path_manager)
-        self.formats = [self.dialog_format]
+        self.formats = []
+
+        def create(cls):
+            try:
+                instance = cls(path_manager)
+                self.formats.append(instance)
+                return instance
+            except Exception as e:
+                logger.print_e(e, self.__class__.__name__)
+                return None
+
+        self.dialog_format = create(DialogFormat)
+        self.faceplate_format = create(FaceplateFormat)
 
     def generate(self, name, results):
         for i in self.formats:
@@ -38,4 +51,9 @@ class FormatManager:
     @property
     def as_dialog(self):
         """Get data as a sentence"""
-        return self.dialog_format.output
+        return '' if self.dialog_format is None else self.dialog_format.output
+
+    def faceplate_command(self, message):
+        if self.faceplate_format is not None:
+            self.faceplate_format.command(message)
+

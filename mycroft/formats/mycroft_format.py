@@ -23,6 +23,10 @@
 #
 from abc import ABCMeta, abstractmethod
 
+from os.path import isfile, join
+
+from mycroft.configuration import ConfigurationManager
+
 
 class MycroftFormat(metaclass=ABCMeta):
     """
@@ -33,10 +37,20 @@ class MycroftFormat(metaclass=ABCMeta):
     The EnclosureFormat could put data into visual faceplate animations
     """
 
-    def __init__(self, path_manager):
+    def __init__(self, extension, path_manager):
+        self._extension = extension
         self.path_manager = path_manager
+        self.global_config = ConfigurationManager.get()
+        self.config = self.global_config.get(self.__class__.__name__, {})
 
     @abstractmethod
+    def clear(self):
+        pass
+
+    @abstractmethod
+    def generate_format(self, file, data):
+        pass
+
     def generate(self, name, data):
         """
         Translate the data into different formats
@@ -45,4 +59,10 @@ class MycroftFormat(metaclass=ABCMeta):
             name (IntentName): full intent name
             data (dict): dict containing all data from the skill
         """
-        pass
+        self.clear()
+        vocab_dir = self.path_manager.vocab_dir(name.skill)
+        file_name = join(vocab_dir, name.intent + self._extension)
+        if not isfile(file_name):
+            return
+        with open(file_name, 'r') as file:
+            self.generate_format(file, data)

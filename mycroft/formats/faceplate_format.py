@@ -21,38 +21,32 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os.path import join, isfile
-from random import randint
+import serial
 
 from mycroft.formats.mycroft_format import MycroftFormat
+from mycroft.util import logger
 
 
-class DialogFormat(MycroftFormat):
+class FaceplateFormat(MycroftFormat):
     """Format data into sentences"""
 
     def __init__(self, path_manager):
-        """
-        Attributes:
-            output  The most recent generated sentence
-        """
-        super().__init__('.dialog', path_manager)
-        self.output = ""
+        super().__init__('.faceplate', path_manager)
+        self.serial = serial.serial_for_url(url=self.config['port'],
+                                            baudrate=self.config['rate'],
+                                            timeout=self.config['timeout'])
 
     def clear(self):
-        self.output = ""
+        pass
 
-    def generate_format(self, file, results):
-        lines = [(line, 0) for line in file.readlines()]
-        for key, val in results.items():
-            lines = [(i.replace('{' + key + '}', val), c + 1 if '{' + key + '}' in i else 0) for i, c in lines]
-        best_lines = [i for i in lines if '{' not in i[0] and '}' not in i[0]]
-        if len(best_lines) == 0:
-            best_lines = [line for line, count in lines]
-        else:
-            index, max_count = max(best_lines, key=lambda item: item[1])
-            best_lines = [line for line, count in best_lines if count == max_count]
+    def command(self, message):
+        logger.debug('Sending message: ' + message)
+        self.serial.write((message + '\n').encode())
 
-        # Remove lines of only whitespace
-        best_lines = [i for i in [i.strip() for i in best_lines] if i]
-
-        self.output = best_lines[randint(0, len(best_lines) - 1)]
+    def generate_format(self, file, data):
+        for line in file.readlines():
+            for key, val in data.items():
+                line = line.replace('{' + key + '}', val)
+            line = line.strip()
+            if len(line) != 0 and '{' not in line and '}' not in line:
+                self.command(line)
