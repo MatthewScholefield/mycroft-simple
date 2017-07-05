@@ -40,18 +40,9 @@ class QueryManager:
     def send_result(self, result):
         """Generates data in all the formats and gives that formatted data to each callback"""
 
-        for name in result.actions:
-            self.format_manager.generate(name, {})
-            for i in self.on_response_callbacks:
-                i(self.format_manager)
-
-        if result.data is None:
-            for i in self.on_response_callbacks:
-                i(None)
-        else:
-            self.format_manager.generate(result.name, result.data)
-            for i in self.on_response_callbacks:
-                i(self.format_manager)
+        self.format_manager.generate(result.action, result.data)
+        for i in self.on_response_callbacks:
+            i(self.format_manager)
 
     def send_query(self, query):
         """Starts calculating a query in a new thread"""

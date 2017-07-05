@@ -45,12 +45,15 @@ class DialogFormat(MycroftFormat):
         if not isfile(dialog_file_name):
             return
         with open(dialog_file_name, 'r') as f:
-            lines = f.readlines()
+            lines = [(line, 0) for line in f.readlines()]
             for key, val in results.items():
-                lines = [i.replace('{' + key + '}', val) for i in lines]
-            best_lines = [i for i in lines if '{' not in i and '}' not in i]
+                lines = [(i.replace('{' + key + '}', val), c + 1 if '{' + key + '}' in i else 0) for i, c in lines]
+            best_lines = [i for i in lines if '{' not in i[0] and '}' not in i[0]]
             if len(best_lines) == 0:
-                best_lines = lines
+                best_lines = [line for line, count in lines]
+            else:
+                index, max_count = max(best_lines, key=lambda item: item[1])
+                best_lines = [line for line, count in best_lines if count == max_count]
 
             # Remove lines of only whitespace
             best_lines = [i for i in [i.strip() for i in best_lines] if i]

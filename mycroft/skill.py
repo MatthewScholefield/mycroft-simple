@@ -21,15 +21,23 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from threading import Timer
+from os.path import join, dirname, abspath, isfile
+from threading import Timer, Event
+
+import sys
 
 from mycroft.configuration import ConfigurationManager
+from mycroft.util import logger
+from inspect import signature
 
 
 class IntentName:
     def __init__(self, skill='', intent=''):
         self.skill = skill
         self.intent = intent
+
+    def __bool__(self):
+        return bool(self.skill) or bool(self.intent)
 
     def __str__(self):
         return self.skill + ':' + self.intent
@@ -44,15 +52,12 @@ class IntentName:
 
 
 class SkillResult:
-    def __init__(self, name=IntentName(), results=[], actions=[], confidence=0.0):
+    def __init__(self, name=IntentName(), results=[], action=None, callback=None, confidence=0.0):
         self.name = name
         self.data = results
-        self.actions = actions
+        self.action = name if action is None else action
+        self.callback = callback
         self.confidence = confidence
-
-    def set_name(self, name):
-        self.name = name
-        return self
 
 
 class MycroftSkill:
@@ -63,50 +68,63 @@ class MycroftSkill:
         self._intent_manager = intent_manager
         self._query_manager = query_manager
         self._results = {}
-        self._actions = []
-        self._ignore_data = False
+        self._action = None
+        self._callback = None
+        self._intent_name = None
 
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
                                                              self.path_manager.skill_conf(self.skill_name))
 
+    def _reset_state(self):
+        self._results.clear()
+        self._callback = self.__make_callback()
+        self._action = None
+
     def _create_handler(self, handler):
-        def custom_handler(intent_data):
+        def custom_handler(intent_match):
             """
             Runs the handler and generates SkillResult to return
             Returns:
-                result (SkillResult): data retrieved from API by the skill
+                confidence (float): confidence of data retrieved by API
             """
-            result = SkillResult()
-            self._results.clear()
-            self._actions.clear()
-            result.confidence = handler(intent_data)
-            if result.confidence is None:
-                result.confidence = 0.75
-
-            result.data = self._results.copy()
-            result.actions = self._actions.copy()
-            self._results.clear()
-            self._actions.clear()
-
-            if self._ignore_data:
-                self._ignore_data = False
-                result.data = None
-
-            return result
+            self._reset_state()
+            try:
+                if len(signature(handler).parameters) == 1:
+                    conf = handler(intent_match)
+                else:
+                    conf = handler()
+            except Exception as e:
+                logger.print_e(e, self.skill_name)
+                conf = 0
+            if conf is None:
+                conf = 0.75
+            return conf
 
         return custom_handler
 
-    def send_results(self, intent):
-        """Only call outside of a handler to output data"""
-        result = SkillResult(IntentName(self.skill_name, intent))
+    def _file_name(self, file):
+        return join(dirname(abspath(sys.modules[self.__class__.__module__].__file__)), file)
+
+    def open_file(self, file, *args, **kwargs):
+        return open(self._file_name(file), *args, **kwargs)
+
+    def is_file(self, file):
+        return isfile(self._file_name(file))
+
+    def _package_results(self, intent_name=IntentName()):
+        result = SkillResult(intent_name)
         result.data = self._results.copy()
-        result.actions = self._actions.copy()
-        if self._ignore_data:
-            self._ignore_data = False
-            result.data = None
-        self._results.clear()
-        self._actions.clear()
+        if not result.action:
+            result.action = self._action
+
+        self._reset_state()
+        return result
+
+    def trigger_action(self, intent, get_results=lambda: None):
+        """Only call outside of a handler to output data"""
+        self._create_handler(get_results)(None)
+        result = self._package_results(IntentName(self.skill_name, intent))
         self._query_manager.send_result(result)
 
     @property
@@ -147,14 +165,19 @@ class MycroftSkill:
         In this handler the skill should receive a dict called intent_data
         and call self.add_result() to add output data. Nothing should be returned from the handler
         """
-        self._intent_manager.register_intent(self.skill_name, intent, self._create_handler(handler))
+        self._intent_manager.register_intent(self.skill_name, intent,
+                                             self._create_handler(handler), lambda: self._callback())
+
+    def create_alias(self, alias_intent, source_intent):
+        """Add another intent that performs the same action as an existing intent"""
+        self._intent_manager.create_alias(self.skill_name, alias_intent, source_intent)
 
     def register_fallback(self, handler):
         """
         Same as register_intent except the handler only receives a query
         and is only activated when all other Mycroft intents fail
         """
-        self._intent_manager.register_fallback(self.skill_name, self._create_handler(handler))
+        self._intent_manager.register_fallback(self.skill_name, self._create_handler(handler), lambda: self._callback())
 
     def add_result(self, key, value):
         """
@@ -163,36 +186,26 @@ class MycroftSkill:
                 Except, of course, '11:45 PM' would be something generated from an API
 
         Results can be both general and granular. Another example:
-            self.add_result('time_seconds', 23)
+            self.add_result('time_seconds', )
         """
         self._results[str(key)] = str(value).strip()
 
-    def flag_result(self, key):
-        """
-        Enables a flag (like setting a boolean to true). Example:
-            if not_found:
-                self.flag_result('not_found')
-        """
-        self._results[str(key)] = ''
-
-    def add_action(self, action):
-        """
-        Adds an action to be executed. This can be used to read additional dialog files. For instance:
-            if not_paired:
-                self.add_action('not.paired')
-        
-        Args:
-            action (str): Name of action to be activated. For instance, corresponds to name of dialog files
-        """
-        self._actions.append(IntentName(self.skill_name, action))
+    def __make_callback(self, handler=lambda: None):
+        """Create a callback that packages and returns the skill result"""
+        def callback():
+            handler()
+            return self._package_results()
+        return callback
 
     def set_action(self, action):
         """
         Sets the only action to be executed. This can be used
         to change the outputted dialog under certain conditions
         """
-        self._actions = [IntentName(self.skill_name, action)]
-        self._ignore_data = True
+        self._action = IntentName(self.skill_name, action)
+
+    def set_callback(self, callback):
+        self._callback = self.__make_callback(callback)
 
 
 class ScheduledSkill(MycroftSkill):
@@ -214,14 +227,16 @@ class ScheduledSkill(MycroftSkill):
         """Create the self-sustaining thread that runs on_triggered()"""
         if self.thread:
             self.thread.cancel()
-        self.thread = Timer(self._delay_s, self._make_callback())
+        self.thread = Timer(self._delay_s, self.__make_callback())
         self.thread.daemon = True
         self.thread.start()
 
-    def _make_callback(self):
+    def __make_callback(self):
         def callback():
             try:
                 self.on_triggered()
+            except Exception as e:
+                logger.print_e(e, self.skill_name)
             finally:
                 self._schedule()
 

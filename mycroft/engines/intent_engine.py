@@ -26,18 +26,14 @@ from abc import ABCMeta, abstractmethod
 from mycroft.skill import IntentName
 
 
-def extract_intent_name(namespaced_name):
-    """Ex. TimeSkill:time.ask -> time.ask"""
-    return namespaced_name.split(':')[1]
-
-
 class IntentMatch:
     """An object that describes the how a query fits into a particular intent"""
 
-    def __init__(self, name=IntentName(), confidence=0.0, matches={}):
+    def __init__(self, name=IntentName(), confidence=0.0, matches={}, query=''):
         self.name = name
         self.confidence = confidence
         self.matches = matches
+        self.query = query
 
     @classmethod
     def merge(cls, match_a, match_b):

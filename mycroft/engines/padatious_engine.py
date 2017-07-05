@@ -24,10 +24,8 @@
 import json
 import os
 import subprocess
-from time import time
-from os import chdir, getcwd
-from os.path import isfile, isdir
-from subprocess import Popen, call
+from os.path import isfile
+from subprocess import Popen
 from threading import Event, Thread
 
 from websocket_server import WebsocketServer

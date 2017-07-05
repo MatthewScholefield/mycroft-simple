@@ -130,6 +130,14 @@ class logger:
     def error(msg, *args):
         logger._log(logging.Logger.error, msg, args)
 
+    @staticmethod
+    def print_e(e, location=''):
+        if location == '':
+            intro = ''
+        else:
+            intro = 'Exception in ' + location + ', '
+        logger._log(logging.Logger.warning, intro + e.__class__.__name__ + ': ' + str(e), ())
+
 
 @contextmanager
 def redirect_alsa_errors():

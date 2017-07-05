@@ -27,7 +27,7 @@ from os import listdir
 from os.path import isdir, join, dirname
 from subprocess import call
 
-from mycroft.util import to_camel
+from mycroft.util import to_camel, logger
 from mycroft.util.git_repo import GitRepo
 
 
@@ -75,7 +75,10 @@ class SkillManager:
 
             cls_name = to_camel(skill_name)
             print('Loading ' + cls_name + '...')
-
-            exec('from ' + skill_name + '.skill import ' + cls_name)
-            exec('self.skills.append(' + cls_name + '(self.path_manager, self.intent_manager, self.query_manager))')
+            try:
+                exec('from ' + skill_name + '.skill import ' + cls_name)
+                exec('self.skills.append(' + cls_name + '(self.path_manager, self.intent_manager, self.query_manager))')
+            except Exception as e:
+                logger.warning('Failed to load ' + skill_name + ' with error: ' + str(e))
+                print('Failed to load ' + skill_name + '!')
         print()
