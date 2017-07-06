@@ -24,6 +24,7 @@
 from os.path import join, abspath, dirname
 from threading import Event
 
+from requests.exceptions import ReadTimeout
 from speech_recognition import UnknownValueError
 
 from mycroft import main_thread
@@ -75,7 +76,7 @@ class SpeechClient(MycroftClient):
 
                 try:
                     utterance = self.stt.execute(recording)
-                except UnknownValueError:
+                except (UnknownValueError, ReadTimeout):
                     utterance = ''
                 logger.info('Utterance: ' + utterance)
 
