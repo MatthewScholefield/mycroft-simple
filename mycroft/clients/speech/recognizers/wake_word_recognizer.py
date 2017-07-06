@@ -28,7 +28,7 @@ from threading import Event
 import pyaudio
 from speech_recognition import AudioData
 
-from mycroft.util import to_snake, redirect_alsa_errors
+from mycroft.util import to_snake
 
 
 class MycroftListener(metaclass=ABCMeta):
@@ -50,6 +50,7 @@ class MycroftListener(metaclass=ABCMeta):
         self.buffer_sec = config['wake_word_length']
         self.talking_volume_ratio = config['talking_volume_ratio']
         self.required_integral = config['required_noise_integral']
+        self.max_di_dt = config['max_di_dt']
         self.noise_max_out_sec = config['noise_max_out_sec']
         self.sec_between_ww_checks = config['sec_between_ww_checks']
         self.recording_timeout = config['recording_timeout']
@@ -113,7 +114,11 @@ class MycroftListener(metaclass=ABCMeta):
 
         self.av_energy += (energy - self.av_energy) * self.energy_weight
         if self.av_energy != 0:
-            self.integral += max(0.0, energy / self.av_energy - 1.0) * self.chunk_size / self.sample_rate
+            di = max(0.0, energy / self.av_energy - 1.0) * self.chunk_size / self.sample_rate
+            dt = self.chunk_sec
+            if di / dt > self.max_di_dt:
+                di = dt * self.max_di_dt
+            self.integral += di
 
     def record_phrase(self):
         """
