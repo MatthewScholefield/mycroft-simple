@@ -41,7 +41,8 @@ setup(
         'parsedatetime==2.4',
         'geopy==1.11.0',
         'pytz==2017.2',
-        'pyjokes==0.5.0'
+        'pyjokes==0.5.0',
+        'cleverwrap==0.2.3.6'
     ],
     entry_points={
         'console_scripts': [
