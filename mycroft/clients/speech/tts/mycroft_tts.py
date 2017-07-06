@@ -35,6 +35,7 @@ class MycroftTTS(metaclass=ABCMeta):
         p = Popen(self.path_manager.play_wav_cmd(file_name).split(' '))
         self.format_manager.visemes(phonemes)
         p.wait()
+        self.format_manager.reset()
 
     @abstractmethod
     def speak(self, text):

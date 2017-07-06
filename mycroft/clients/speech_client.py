@@ -61,18 +61,23 @@ class SpeechClient(MycroftClient):
     def run(self):
         try:
             while not main_thread.exit_event.is_set():
-                logger.debug('Waiting for wake word...')
+                logger.info('Waiting for wake word...')
                 self.listener.wait_for_wake_word()
-                logger.debug('Recording...')
+
+                logger.info('Recording...')
+                self.format_manager.faceplate_command('mouth.listen')
                 play_audio(self.start_listening_file)
                 recording = self.listener.record_phrase()
+
+                logger.info('Done recording.')
+                self.format_manager.faceplate_command('mouth.reset')
                 play_audio(self.stop_listening_file)
-                logger.debug('Done recording.')
+
                 try:
                     utterance = self.stt.execute(recording)
-                    logger.debug('Utterance: ' + utterance)
                 except UnknownValueError:
                     utterance = ''
+                logger.info('Utterance: ' + utterance)
 
                 self.send_query(utterance)
                 self.response_event.wait()

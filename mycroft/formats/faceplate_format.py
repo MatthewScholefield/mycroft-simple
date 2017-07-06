@@ -22,6 +22,7 @@
 # under the License.
 #
 import serial
+from threading import Thread
 
 from mycroft.formats.mycroft_format import MycroftFormat
 from mycroft.util import logger
@@ -94,8 +95,10 @@ class FaceplateFormat(MycroftFormat):
                                             baudrate=self.config['rate'],
                                             timeout=self.config['timeout'])
 
-    def clear(self):
-        pass
+    def reset(self):
+        self.command('mouth.reset')
+        self.command('eyes.reset')
+        self.command('eyes.color=2068479')
 
     def visemes(self, dur_str):
         begin_time = get_time()

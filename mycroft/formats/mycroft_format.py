@@ -44,7 +44,7 @@ class MycroftFormat(metaclass=ABCMeta):
         self.config = self.global_config.get(self.__class__.__name__, {})
 
     @abstractmethod
-    def clear(self):
+    def reset(self):
         pass
 
     @abstractmethod
@@ -59,7 +59,6 @@ class MycroftFormat(metaclass=ABCMeta):
             name (IntentName): full intent name
             data (dict): dict containing all data from the skill
         """
-        self.clear()
         vocab_dir = self.path_manager.vocab_dir(name.skill)
         file_name = join(vocab_dir, name.intent + self._extension)
         if not isfile(file_name):

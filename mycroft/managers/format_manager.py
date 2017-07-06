@@ -61,3 +61,7 @@ class FormatManager:
         if self.faceplate_format is not None:
             self.faceplate_format.command(*args, **kwargs)
 
+    def reset(self):
+        for i in self.formats:
+            if i is not None:
+                i.reset()

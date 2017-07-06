@@ -21,7 +21,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os.path import join, isfile
 from random import randint
 
 from mycroft.formats.mycroft_format import MycroftFormat
@@ -38,7 +37,7 @@ class DialogFormat(MycroftFormat):
         super().__init__('.dialog', path_manager)
         self.output = ""
 
-    def clear(self):
+    def reset(self):
         self.output = ""
 
     def generate_format(self, file, results):
