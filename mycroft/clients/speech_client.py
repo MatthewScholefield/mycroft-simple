@@ -46,7 +46,7 @@ class SpeechClient(MycroftClient):
         self.global_config = ConfigurationManager.get()
         self.listener = self.create_listener(self.path_manager)
         self.stt = STT()
-        self.tts = MimicTTS(self.path_manager)
+        self.tts = MimicTTS(self.path_manager, self.format_manager)
         root = abspath(dirname(__file__))
         self.start_listening_file = join(root, 'speech', 'sounds', self.global_config['sounds']['start_listening'])
         self.stop_listening_file = join(root, 'speech', 'sounds', self.global_config['sounds']['stop_listening'])

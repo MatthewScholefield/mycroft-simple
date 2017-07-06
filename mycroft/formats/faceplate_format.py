@@ -25,6 +25,64 @@ import serial
 
 from mycroft.formats.mycroft_format import MycroftFormat
 from mycroft.util import logger
+from time import sleep, time as get_time
+
+
+VISEMES = {
+    # /A group
+    'v': '5',
+    'f': '5',
+    # /B group
+    'uh': '2',
+    'w': '2',
+    'uw': '2',
+    'er': '2',
+    'r': '2',
+    'ow': '2',
+    # /C group
+    'b': '4',
+    'p': '4',
+    'm': '4',
+    # /D group
+    'aw': '1',
+    # /E group
+    'th': '3',
+    'dh': '3',
+    # /F group
+    'zh': '3',
+    'ch': '3',
+    'sh': '3',
+    'jh': '3',
+    # /G group
+    'oy': '6',
+    'ao': '6',
+    # /Hgroup
+    'z': '3',
+    's': '3',
+    # /I group
+    'ae': '0',
+    'eh': '0',
+    'ey': '0',
+    'ah': '0',
+    'ih': '0',
+    'y': '0',
+    'iy': '0',
+    'aa': '0',
+    'ay': '0',
+    'ax': '0',
+    'hh': '0',
+    # /J group
+    'n': '3',
+    't': '3',
+    'd': '3',
+    'l': '3',
+    # /K group
+    'g': '3',
+    'ng': '3',
+    'k': '3',
+    # blank mouth
+    'pau': '4',
+}
 
 
 class FaceplateFormat(MycroftFormat):
@@ -38,6 +96,23 @@ class FaceplateFormat(MycroftFormat):
 
     def clear(self):
         pass
+
+    def visemes(self, dur_str):
+        begin_time = get_time()
+        for dur_cmd in dur_str.split(' '):
+            parts = dur_cmd.split(':')
+            if len(parts) != 2:
+                continue
+
+            phoneme = parts[0]
+            desired_delta = float(parts[1])
+
+            self.command('mouth.viseme=' + VISEMES.get(phoneme, 4))
+
+            cur_delta = get_time() - begin_time
+            sleep_time = desired_delta - cur_delta
+            if sleep_time > 0:
+                sleep(sleep_time)
 
     def command(self, message):
         logger.debug('Sending message: ' + message)

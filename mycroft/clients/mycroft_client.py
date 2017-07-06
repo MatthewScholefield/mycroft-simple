@@ -30,8 +30,9 @@ class MycroftClient(metaclass=ABCMeta):
     Examples clients include the voice client and text client
     """
 
-    def __init__(self, path_manager, query_manager):
+    def __init__(self, path_manager, query_manager, format_manager):
         self.path_manager = path_manager
+        self.format_manager = format_manager
         self._query_manager = query_manager
         self._query_manager.on_response(self.on_response)
 

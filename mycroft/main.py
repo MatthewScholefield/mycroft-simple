@@ -59,7 +59,7 @@ def main():
     format_manager = FormatManager(path_manager)
     query_manager = QueryManager(intent_manager, format_manager)
     skill_manager = SkillManager(intent_manager, path_manager, query_manager)
-    client_manager = ClientManager([TextClient, SpeechClient], path_manager, query_manager)
+    client_manager = ClientManager([TextClient, SpeechClient], path_manager, query_manager, format_manager)
 
     skill_manager.load_skills()
     intent_manager.on_intents_loaded()

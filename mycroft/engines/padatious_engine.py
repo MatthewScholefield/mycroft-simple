@@ -32,6 +32,7 @@ from websocket_server import WebsocketServer
 
 from mycroft.engines.intent_engine import IntentEngine, IntentMatch
 from mycroft.skill import IntentName
+from mycroft.util import logger
 from mycroft.util.git_repo import GitRepo
 
 
@@ -104,6 +105,14 @@ class PadatiousEngine(IntentEngine):
 
     def on_intents_loaded(self):
         self._send_request('train')
+        print('Training...')
+        logger.debug('Training Padatious...')
+        if not self.new_message_event.wait(40):
+            logger.debug('Taking longer than expected to train...')
+            if not self.new_message_event.wait(200):
+                raise TimeoutError('Taking too long to train intents')
+        logger.debug('Training complete!')
+        print('Training complete!')
 
     def calc_intents(self, query):
         self.new_message_event.clear()

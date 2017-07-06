@@ -23,10 +23,18 @@
 #
 from abc import ABCMeta, abstractmethod
 
+from subprocess import Popen
+
 
 class MycroftTTS(metaclass=ABCMeta):
-    def __init__(self, path_manager):
+    def __init__(self, path_manager, format_manager):
         self.path_manager = path_manager
+        self.format_manager = format_manager
+
+    def speak_wav(self, file_name, phonemes=''):
+        p = Popen(self.path_manager.play_wav_cmd(file_name).split(' '))
+        self.format_manager.visemes(phonemes)
+        p.wait()
 
     @abstractmethod
     def speak(self, text):

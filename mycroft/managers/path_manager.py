@@ -23,6 +23,7 @@
 #
 from os.path import join, expanduser
 
+from mycroft.configuration import ConfigurationManager
 from mycroft.util import to_snake
 
 
@@ -30,7 +31,8 @@ class PathManager:
     """Retreives directories and files used by Mycroft"""
 
     def __init__(self):
-        self.lang = 'en-us'
+        self.config = ConfigurationManager.get()
+        self.lang = self.config['lang']
 
     @property
     def user_dir(self):
@@ -43,6 +45,13 @@ class PathManager:
     @property
     def mimic_exe(self):
         return join(self.mimic_dir, 'mimic')
+
+    @property
+    def tts_cache(self):
+        return self.config['tts']['temp_file']
+
+    def play_wav_cmd(self, file):
+        return self.config['play_wav_cmdline'].replace('%1', file)
 
     @property
     def model_dir_no_lang(self):

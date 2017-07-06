@@ -53,7 +53,11 @@ class FormatManager:
         """Get data as a sentence"""
         return '' if self.dialog_format is None else self.dialog_format.output
 
-    def faceplate_command(self, message):
+    def visemes(self, *args, **kwargs):
         if self.faceplate_format is not None:
-            self.faceplate_format.command(message)
+            self.faceplate_format.visemes(*args, **kwargs)
+
+    def faceplate_command(self, *args, **kwargs):
+        if self.faceplate_format is not None:
+            self.faceplate_format.command(*args, **kwargs)
 

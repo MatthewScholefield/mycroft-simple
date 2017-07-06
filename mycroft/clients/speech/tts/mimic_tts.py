@@ -22,15 +22,15 @@
 # under the License.
 #
 from os.path import join, isfile
-from subprocess import call
+from subprocess import check_output, PIPE
 
 from mycroft.clients.speech.tts.mycroft_tts import MycroftTTS
 from mycroft.util.git_repo import GitRepo
 
 
 class MimicTTS(MycroftTTS):
-    def __init__(self, path_manager):
-        super().__init__(path_manager)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.mimic_repo = GitRepo(dir=self.path_manager.mimic_dir,
                                   url='https://github.com/MycroftAI/mimic.git',
@@ -48,4 +48,5 @@ class MimicTTS(MycroftTTS):
             self.mimic_repo.run_inside(['sh', join('scripts', 'build-mimic.sh')])
 
     def speak(self, text):
-        call([self.path_manager.mimic_exe, '-t', text])
+        phonemes = check_output([self.path_manager.mimic_exe, '-t', text, '-o', self.path_manager.tts_cache, '-psdur'])
+        self.speak_wav(self.path_manager.tts_cache, phonemes.decode())
