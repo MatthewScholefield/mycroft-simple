@@ -27,6 +27,12 @@ setup(
         'pocketsphinx>=0.1.3',
         'SpeechRecognition>=3.7.1',
         'PyAudio>=0.2.11',
+        'pyserial==3.3',
+
+        'urllib3>=1.21.1,<1.22',
+        'certifi>=2017.4.17',
+        'chardet>=3.0.2,<3.1.0',
+        'idna>=2.5,<2.6',
 
         # Skill dependencies
         'multi-key-dict>=2.0.3',
