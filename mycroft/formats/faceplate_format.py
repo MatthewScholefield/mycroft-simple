@@ -91,9 +91,8 @@ class FaceplateFormat(MycroftFormat):
 
     def __init__(self, path_manager):
         super().__init__('.faceplate', path_manager)
-        self.serial = serial.serial_for_url(url=self.config['port'],
-                                            baudrate=self.config['rate'],
-                                            timeout=self.config['timeout'])
+        enc_cfg = self.global_config['enclosure']
+        self.serial = serial.serial_for_url(url=enc_cfg['port'], baudrate=enc_cfg['rate'], timeout=enc_cfg['timeout'])
 
     def reset(self):
         self.command('mouth.reset')

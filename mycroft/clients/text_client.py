@@ -34,7 +34,7 @@ class TextClient(MycroftClient):
         super().__init__(*args, **kwargs)
         self.response_event = Event()
         self.response_event.set()
-        self.prompt = 'Input: '
+        self.prompt = self.config['prompt']
 
     def run(self):
         while not main_thread.exit_event.is_set():

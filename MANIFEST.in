@@ -1,2 +1,1 @@
-include mycroft/mycroft.conf
-include mycroft/clients/speech/sounds/start_listening.wav
+recursive-include mycroft/data

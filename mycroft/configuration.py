@@ -29,7 +29,7 @@ import yaml
 
 from mycroft.util import logger, to_snake
 
-DEFAULT_CONFIG = join(dirname(__file__), "mycroft.conf")
+DEFAULT_CONFIG = join(dirname(__file__), 'data', 'mycroft.conf')
 SYSTEM_CONFIG = '/etc/mycroft/mycroft.conf'
 USER_CONFIG = join(expanduser('~'), '.mycroft/mycroft.conf')
 REMOTE_CONFIG = "mycroft.ai"

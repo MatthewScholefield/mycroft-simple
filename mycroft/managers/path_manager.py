@@ -21,7 +21,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os.path import join, expanduser
+import mycroft
+from os.path import join, expanduser, abspath, dirname
 
 from mycroft.configuration import ConfigurationManager
 from mycroft.util import to_snake
@@ -60,6 +61,14 @@ class PathManager:
     @property
     def model_dir(self):
         return join(self.model_dir_no_lang, self.lang)
+
+    @property
+    def data_dir(self):
+        return dirname(abspath(mycroft.__file__))
+
+    @property
+    def sounds_dir(self):
+        return join(self.data_dir, 'sounds')
 
     @property
     def padatious_dir(self):

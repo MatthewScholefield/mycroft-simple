@@ -44,16 +44,14 @@ class SpeechClient(MycroftClient):
         super().__init__(*args, **kwargs)
         self.exit = False
         self.response_event = Event()
-        self.global_config = ConfigurationManager.get()
         self.listener = self.create_listener(self.path_manager)
         self.stt = STT()
         self.tts = MimicTTS(self.path_manager, self.format_manager)
-        root = abspath(dirname(__file__))
-        self.start_listening_file = join(root, 'speech', 'sounds', self.global_config['sounds']['start_listening'])
-        self.stop_listening_file = join(root, 'speech', 'sounds', self.global_config['sounds']['stop_listening'])
+        self.start_listening_file = join(self.path_manager.sounds_dir, self.global_config['sounds']['start_listening'])
+        self.stop_listening_file = join(self.path_manager.sounds_dir, self.global_config['sounds']['stop_listening'])
 
     def create_listener(self, path_manager):
-        t = self.global_config['listener']['type']
+        t = self.config['listener_type']
         if t == 'PocketsphinxListener':
             return PocketsphinxListener(path_manager, self.global_config)
         else:

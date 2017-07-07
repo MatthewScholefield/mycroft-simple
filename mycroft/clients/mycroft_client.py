@@ -23,6 +23,8 @@
 #
 from abc import ABCMeta, abstractmethod
 
+from mycroft.configuration import ConfigurationManager
+
 
 class MycroftClient(metaclass=ABCMeta):
     """
@@ -35,6 +37,8 @@ class MycroftClient(metaclass=ABCMeta):
         self.format_manager = format_manager
         self._query_manager = query_manager
         self._query_manager.on_response(self.on_response)
+        self.global_config = ConfigurationManager.get()
+        self.config = self.global_config[self.__class__.__name__]
 
     def send_query(self, query):
         """Ask a question and trigger on_response when an answer is found"""
