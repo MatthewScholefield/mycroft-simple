@@ -32,36 +32,40 @@ class FormatManager:
     def __init__(self, path_manager):
         self.formats = []
 
-        def create(cls):
+        def create(cls, prefix):
+            instance = None
             try:
                 instance = cls(path_manager)
                 self.formats.append(instance)
-                return instance
             except Exception as e:
                 logger.print_e(e, self.__class__.__name__)
-                return None
+            self._reuse_methods(cls, instance, prefix)
+            return instance
 
-        self.dialog_format = create(DialogFormat)
-        self.faceplate_format = create(FaceplateFormat)
+        create(DialogFormat, 'dialog_')
+        create(FaceplateFormat, 'faceplate_')
+
+    def _reuse_methods(self, cls, obj, prefix):
+        def create_wrapper(func):
+            def wrapper(*args, **kwargs):
+                if obj is not None:
+                    return func(obj, *args, **kwargs)
+                else:
+                    return ''
+            return wrapper
+
+        funcs = [
+            a for a in dir(cls)
+            if not a.startswith('_') and callable(getattr(cls, a))
+        ]
+        for func in funcs:
+            print('Setting attribute ' +  prefix + func)
+            setattr(self, prefix + func, create_wrapper(getattr(cls, func)))
 
     def generate(self, name, results):
         for i in self.formats:
             i.generate(name, results)
 
-    @property
-    def as_dialog(self):
-        """Get data as a sentence"""
-        return '' if self.dialog_format is None else self.dialog_format.output
-
-    def visemes(self, *args, **kwargs):
-        if self.faceplate_format is not None:
-            self.faceplate_format.visemes(*args, **kwargs)
-
-    def faceplate_command(self, *args, **kwargs):
-        if self.faceplate_format is not None:
-            self.faceplate_format.command(*args, **kwargs)
-
     def reset(self):
         for i in self.formats:
-            if i is not None:
-                i.reset()
+            i._reset()

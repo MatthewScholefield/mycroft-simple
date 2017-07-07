@@ -94,7 +94,7 @@ class FaceplateFormat(MycroftFormat):
         enc_cfg = self.global_config['enclosure']
         self.serial = serial.serial_for_url(url=enc_cfg['port'], baudrate=enc_cfg['rate'], timeout=enc_cfg['timeout'])
 
-    def reset(self):
+    def _reset(self):
         self.command('mouth.reset')
         self.command('eyes.reset')
         self.command('eyes.color=2068479')
@@ -120,7 +120,10 @@ class FaceplateFormat(MycroftFormat):
         logger.debug('Sending message: ' + message)
         self.serial.write((message + '\n').encode())
 
-    def generate_format(self, file, data):
+    def readline(self):
+        return self.serial.readline().decode()
+
+    def _generate_format(self, file, data):
         for line in file.readlines():
             for key, val in data.items():
                 line = line.replace('{' + key + '}', val)

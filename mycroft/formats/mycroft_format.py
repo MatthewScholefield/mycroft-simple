@@ -44,11 +44,11 @@ class MycroftFormat(metaclass=ABCMeta):
         self.config = self.global_config.get(self.__class__.__name__, {})
 
     @abstractmethod
-    def reset(self):
+    def _reset(self):
         pass
 
     @abstractmethod
-    def generate_format(self, file, data):
+    def _generate_format(self, file, data):
         pass
 
     def generate(self, name, data):
@@ -64,4 +64,4 @@ class MycroftFormat(metaclass=ABCMeta):
         if not isfile(file_name):
             return
         with open(file_name, 'r') as file:
-            self.generate_format(file, data)
+            self._generate_format(file, data)

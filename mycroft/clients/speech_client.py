@@ -85,7 +85,7 @@ class SpeechClient(MycroftClient):
 
     def on_response(self, format_manager):
         if format_manager is not None:
-            dialog = format_manager.as_dialog
+            dialog = format_manager.dialog_get()
             if len(dialog) > 0:
                 self.tts.speak(dialog)
         self.response_event.set()

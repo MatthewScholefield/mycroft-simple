@@ -37,10 +37,13 @@ class DialogFormat(MycroftFormat):
         super().__init__('.dialog', path_manager)
         self.output = ""
 
-    def reset(self):
+    def get(self):
+        return self.output
+
+    def _reset(self):
         self.output = ""
 
-    def generate_format(self, file, results):
+    def _generate_format(self, file, results):
         lines = [(line, 0) for line in file.readlines()]
         for key, val in results.items():
             lines = [(i.replace('{' + key + '}', val), c + 1 if '{' + key + '}' in i else 0) for i, c in lines]

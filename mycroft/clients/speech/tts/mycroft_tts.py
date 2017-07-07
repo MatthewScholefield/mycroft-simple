@@ -33,7 +33,7 @@ class MycroftTTS(metaclass=ABCMeta):
 
     def speak_wav(self, file_name, phonemes=''):
         p = Popen(self.path_manager.play_wav_cmd(file_name).split(' '))
-        self.format_manager.visemes(phonemes)
+        self.format_manager.faceplate_visemes(phonemes)
         p.wait()
         self.format_manager.reset()
 

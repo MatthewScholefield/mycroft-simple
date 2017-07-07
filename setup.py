@@ -28,7 +28,9 @@ setup(
         'SpeechRecognition>=3.7.1',
         'PyAudio>=0.2.11',
         'pyserial==3.3',
+        'pyalsaaudio==0.8.4'
 
+        # Extra deps required for some installations
         'urllib3>=1.21.1,<1.22',
         'certifi>=2017.4.17',
         'chardet>=3.0.2,<3.1.0',

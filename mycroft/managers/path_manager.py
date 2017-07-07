@@ -64,7 +64,7 @@ class PathManager:
 
     @property
     def data_dir(self):
-        return dirname(abspath(mycroft.__file__))
+        return join(abspath(mycroft.__path__._path[0]), 'data')
 
     @property
     def sounds_dir(self):
