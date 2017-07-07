@@ -89,6 +89,9 @@ class PathManager:
     def vocab_dir(self, skill_name):
         return join(self.skill_dir(skill_name), 'vocab', self.lang)
 
+    def formats_dir(self, skill_name):
+        return join(self.skill_dir(skill_name), 'formats')
+
     def intent_dir(self, skill_name):
         return self.vocab_dir(skill_name)
 
