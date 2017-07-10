@@ -27,6 +27,7 @@ from os import listdir
 from os.path import isdir, join, dirname
 from subprocess import call
 
+from mycroft.skill import MycroftSkill
 from mycroft.util import to_camel, logger
 from mycroft.util.git_repo import GitRepo
 
@@ -34,10 +35,9 @@ from mycroft.util.git_repo import GitRepo
 class SkillManager:
     """Dynamically loads skills"""
 
-    def __init__(self, intent_manager, path_manager, query_manager):
-        self.intent_manager = intent_manager
+    def __init__(self, path_manager, intent_manager, query_manager):
+        MycroftSkill.initialize_references(path_manager, intent_manager, query_manager)
         self.path_manager = path_manager
-        self.query_manager = query_manager
         self.skills = []
         self.git_repo = GitRepo(dir=self.path_manager.skills_dir,
                                 url='https://github.com/MatthewScholefield/mycroft-simple.git',
@@ -77,7 +77,7 @@ class SkillManager:
             print('Loading ' + cls_name + '...')
             try:
                 exec('from ' + skill_name + '.skill import ' + cls_name)
-                exec('self.skills.append(' + cls_name + '(self.path_manager, self.intent_manager, self.query_manager))')
+                exec('self.skills.append(' + cls_name + '())')
             except Exception as e:
                 logger.print_e(e, 'loading ' + skill_name)
                 print('Failed to load ' + skill_name + '!')

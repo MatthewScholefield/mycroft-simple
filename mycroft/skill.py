@@ -63,10 +63,7 @@ class SkillResult:
 class MycroftSkill:
     """Base class for all Mycroft skills"""
 
-    def __init__(self, path_manager, intent_manager, query_manager):
-        self.path_manager = path_manager
-        self._intent_manager = intent_manager
-        self._query_manager = query_manager
+    def __init__(self):
         self._results = {}
         self._action = None
         self._callback = None
@@ -75,6 +72,12 @@ class MycroftSkill:
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
                                                              self.path_manager.skill_conf(self.skill_name))
+
+    @classmethod
+    def initialize_references(cls, path_manager, intent_manager, query_manager):
+        cls.path_manager = path_manager
+        cls._intent_manager = intent_manager
+        cls._query_manager = query_manager
 
     def _reset_state(self):
         self._results.clear()
