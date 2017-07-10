@@ -24,6 +24,8 @@
 from alsaaudio import Mixer
 from os.path import join
 
+from threading import Thread
+
 from mycroft import main_thread
 from mycroft.clients.mycroft_client import MycroftClient
 from mycroft.util import logger
@@ -51,6 +53,7 @@ class EnclosureClient(MycroftClient):
         play_wav(self.change_volume_wav)
 
     def run(self):
+        Thread(target=self.format_manager.faceplate_run, daemon=True).start()
         while not main_thread.exit_event.is_set():
             line = self.format_manager.faceplate_readline()
             if 'volume.up' in line:

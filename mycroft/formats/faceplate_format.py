@@ -24,6 +24,8 @@
 import serial
 from threading import Thread
 
+from queue import Queue
+
 from mycroft.formats.mycroft_format import MycroftFormat
 from mycroft.util import logger
 from time import sleep, time as get_time
@@ -93,6 +95,7 @@ class FaceplateFormat(MycroftFormat):
         super().__init__('.faceplate', path_manager)
         enc_cfg = self.global_config['enclosure']
         self.serial = serial.serial_for_url(url=enc_cfg['port'], baudrate=enc_cfg['rate'], timeout=enc_cfg['timeout'])
+        self.queue = Queue()
 
     def _reset(self):
         self.command('mouth.reset')
@@ -116,9 +119,15 @@ class FaceplateFormat(MycroftFormat):
             if sleep_time > 0:
                 sleep(sleep_time)
 
+    def run(self):
+        while True:
+            command = self.queue.get()
+            logger.debug('Sending message: ' + command)
+            self.serial.write((command + '\n').encode())
+            self.queue.task_done()
+
     def command(self, message):
-        logger.debug('Sending message: ' + message)
-        self.serial.write((message + '\n').encode())
+        self.queue.put(message)
 
     def readline(self):
         return self.serial.readline().decode()
