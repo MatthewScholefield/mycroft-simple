@@ -79,6 +79,6 @@ class SkillManager:
                 exec('from ' + skill_name + '.skill import ' + cls_name)
                 exec('self.skills.append(' + cls_name + '(self.path_manager, self.intent_manager, self.query_manager))')
             except Exception as e:
-                logger.warning('Failed to load ' + skill_name + ' with error: ' + str(e))
+                logger.print_e(e, 'loading ' + skill_name)
                 print('Failed to load ' + skill_name + '!')
         print()
