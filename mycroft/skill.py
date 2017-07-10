@@ -52,10 +52,10 @@ class IntentName:
 
 
 class SkillResult:
-    def __init__(self, name=IntentName(), results=[], action=None, callback=None, confidence=0.0):
+    def __init__(self, name=IntentName(), data=[], action=None, callback=None, confidence=0.0):
         self.name = name
-        self.data = results
-        self.action = name if action is None else action
+        self.data = data
+        self.action = action
         self.callback = callback
         self.confidence = confidence
 
@@ -113,18 +113,20 @@ class MycroftSkill:
         return isfile(self._file_name(file))
 
     def _package_results(self, intent_name=IntentName()):
-        result = SkillResult(intent_name)
-        result.data = self._results.copy()
-        if not result.action:
-            result.action = self._action
+        result = SkillResult(intent_name, data=self._results.copy(), action=self._action)
+        if result.action is None:
+            result.action = intent_name
 
         self._reset_state()
         return result
 
-    def trigger_action(self, intent, get_results=lambda: None):
+    def trigger_action(self, default_intent, get_results=None):
         """Only call outside of a handler to output data"""
-        self._create_handler(get_results)(None)
-        result = self._package_results(IntentName(self.skill_name, intent))
+        if get_results is not None:
+            self._create_handler(get_results)(None)
+        result = self._package_results()
+        if not result.action:
+            result.action = IntentName(self.skill_name, default_intent)
         self._query_manager.send_result(result)
 
     @property
