@@ -13,8 +13,9 @@ check_no_root() {
 
 install_deps() {
     if found_exe apt-get; then
-        echo "Installing python3-pip portaudio19-dev swig vvirtualenv libyaml-dev..."
-        sudo apt-get install -y python3-pip portaudio19-dev swig virtualenv libyaml-dev
+        apt_packages="python3-pip portaudio19-dev swig virtualenv libyaml-dev libpulse-dev"
+        echo "Installing $apt_packages..."
+        sudo apt-get install -y $apt_packages
     else
         if found_exe tput; then
 			green="$(tput setaf 2)"
@@ -23,7 +24,7 @@ install_deps() {
     	fi
     	echo
         echo "${green}Could not find package manager"
-        echo "${green}Make sure to manually install: ${blue}python3-pip portaudio19-dev swig virtualenv libyaml-dev"
+        echo "${green}Make sure to manually install:${blue} $apt_packages"
         echo $reset
     fi
 }

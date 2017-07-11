@@ -1,1 +1,1 @@
-recursive-include mycroft/data
+recursive-include mycroft/data *
