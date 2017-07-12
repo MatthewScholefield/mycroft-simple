@@ -59,7 +59,7 @@ class MycroftFormat(metaclass=ABCMeta):
             name (IntentName): full intent name
             data (dict): dict containing all data from the skill
         """
-        for dir_fn in [self.path_manager.vocab_dir, self.path_manager.formats_dir]:
+        for dir_fn in [self.path_manager.skill_vocab_dir, self.path_manager.formats_dir]:
             file_name = join(dir_fn(name.skill), name.intent + self._extension)
             if isfile(file_name):
                 with open(file_name, 'r') as file:

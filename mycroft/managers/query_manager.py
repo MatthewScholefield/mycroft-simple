@@ -35,12 +35,12 @@ class QueryManager:
 
     def _run_query(self, query):
         """Function to run query in a separate thread"""
-        self.send_result(self.intent_manager.calc_result(query))
+        self.send_package(self.intent_manager.calc_result(query))
 
-    def send_result(self, result):
+    def send_package(self, package):
         """Generates data in all the formats and gives that formatted data to each callback"""
 
-        self.format_manager.generate(result.action, result.data)
+        self.format_manager.generate(package.action, package.data)
         for i in self.on_response_callbacks:
             i(self.format_manager)
 

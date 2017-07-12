@@ -25,24 +25,9 @@ from math import sqrt
 
 from mycroft.engines.intent_engine import IntentMatch
 from mycroft.engines.padatious_engine import PadatiousEngine
-from mycroft.skill import IntentName
+from mycroft.skill import IntentName, ResultPackage
 
 engine_classes = [PadatiousEngine]
-
-
-class SkillHandler:
-    def __init__(self, calc_conf, calc_result, name):
-        self.calc_conf = calc_conf
-        self.calc_result = self._make_calc_result_fn(calc_result, name)
-
-    def _make_calc_result_fn(self, calc_result, name):
-        def callback():
-            result = calc_result()
-            result.name = name
-            if not result.action:
-                result.action = name
-            return result
-        return callback
 
 
 class IntentManager:
@@ -50,10 +35,17 @@ class IntentManager:
 
     def __init__(self, path_manager):
         self.engines = [i(path_manager) for i in engine_classes]
-        self.handlers = {}
+        self.handlers_s = {}  # Example: { 'SkillName:intent.name': [intent_name_handler, alias_name_handler] }
         self.fallbacks = []
 
-    def register_intent(self, skill_name, intent, calc_conf_fn, calc_result_fn):
+    def _add_handler(self, str_name, handler):
+        if str_name in self.handlers_s:
+            self.handlers_s[str_name].append(handler)
+        else:
+            self.handlers_s[str_name] = [handler]
+        return
+
+    def register_intent(self, skill_name, intent, calc_conf_fn):
         """
         Register an intent via the corresponding intent engine
         It tries passing the arguments to each engine until one can interpret it correctly
@@ -63,12 +55,11 @@ class IntentManager:
             skill_name (str):
             intent (obj): argument used to build intent; can be anything
             calc_conf_fn (func): function that calculates the confidence
-            calc_result_fn (func): function that packages the result once selected
         """
         for i in self.engines:
             intent_name = i.try_register_intent(skill_name, intent)
             if intent_name is not None:
-                self.handlers[str(intent_name)] = SkillHandler(calc_conf_fn, calc_result_fn, intent_name)
+                self._add_handler(str(intent_name), lambda x: calc_conf_fn(x).set_name(intent_name))
                 return
         print("Failed to register intent for " + str(IntentName(skill_name, str(intent))))
 
@@ -77,17 +68,18 @@ class IntentManager:
         Register an intent that uses the same handler as another intent
         Args:
             skill_name (str):
-            alias_intent (obj): argument used o build intent; can be anything
+            alias_intent (obj): argument used to build intent; can be anything
             intent (str): Name of intent to copy from
         """
         for i in self.engines:
             intent_name = i.try_register_intent(skill_name, alias_intent)
             if intent_name is not None:
-                self.handlers[str(intent_name)] = self.handlers[str(IntentName(skill_name, intent))]
+                for handler in self.handlers_s[str(IntentName(skill_name, intent))]:
+                    self._add_handler(str(intent_name), handler)
                 return
         print("Failed to register alias for " + str(IntentName(skill_name, str(intent))))
 
-    def register_fallback(self, skill_name, calc_conf_fn, calc_result_fn):
+    def register_fallback(self, skill_name, calc_conf_fn):
         """
         Register a function to be called as a general knowledge fallback
 
@@ -95,8 +87,8 @@ class IntentManager:
             calc_conf_fn (obj): function that receives query and returns a SkillResult
                         note: register_fallback in the MycroftSkill base class automatically generates a SkillResult
         """
-        name = IntentName(skill_name, 'fallback')
-        self.fallbacks.append(SkillHandler(calc_conf_fn, calc_result_fn, name))
+        intent_name = IntentName(skill_name, 'fallback')
+        self.fallbacks.append(lambda x: calc_conf_fn(x).set_name(intent_name))
 
     def on_intents_loaded(self):
         for i in self.engines:
@@ -134,25 +126,22 @@ class IntentManager:
 
         to_test = [match for match in intent_matches if match.confidence > 0.5]
 
-        best_conf = 0.0
-        best_handler = None
+        best_package = ResultPackage()
         for match in to_test:
             match.query = query
-            handler = self.handlers[str(match.name)]
-            conf = sqrt(handler.calc_conf(match) * match.confidence)
-            if conf > best_conf:
-                best_conf = conf
-                best_handler = handler
+            for handler in self.handlers_s[str(match.name)]:
+                package = handler(match)
+                package.confidence = sqrt(package.confidence * match.confidence)
+                if package.confidence > best_package.confidence:
+                    best_package = package
 
-        if best_conf > 0:
-            return best_handler.calc_result()
+        if best_package.confidence > 0:
+            return best_package.callback(best_package)
 
-        best_conf = 0.0
-        best_handler = None
+        best_package = ResultPackage()
         for handler in self.fallbacks:
-            conf = handler.calc_conf(query)
-            if conf > best_conf:
-                best_conf = conf
-                best_handler = handler
+            package = handler(query)
+            if package.confidence > best_package.confidence:
+                best_package = package
 
-        return best_handler.calc_result()
+        return best_package.callback(best_package)

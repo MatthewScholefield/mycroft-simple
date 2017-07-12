@@ -51,23 +51,26 @@ class IntentName:
         return cls(parts[0], parts[1])
 
 
-class SkillResult:
-    def __init__(self, name=IntentName(), data=[], action=None, callback=None, confidence=0.0):
+class ResultPackage:
+    def __init__(self, name=IntentName(), data={}, action=None, callback=lambda x: x, confidence=0.0):
         self.name = name
         self.data = data
         self.action = action
         self.callback = callback
         self.confidence = confidence
 
+    def set_name(self, name):
+        self.name = name
+        if self.action is None:
+            self.action = name
+        return self
+
 
 class MycroftSkill:
     """Base class for all Mycroft skills"""
 
     def __init__(self):
-        self._results = {}
-        self._action = None
-        self._callback = None
-        self._intent_name = None
+        self._package = self._default_package()
 
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
@@ -79,10 +82,8 @@ class MycroftSkill:
         cls._intent_manager = intent_manager
         cls._query_manager = query_manager
 
-    def _reset_state(self):
-        self._results.clear()
-        self._callback = self.__make_callback()
-        self._action = None
+    def _default_package(self):
+        return ResultPackage(IntentName(self.skill_name))
 
     def _create_handler(self, handler):
         def custom_handler(intent_match):
@@ -91,7 +92,7 @@ class MycroftSkill:
             Returns:
                 confidence (float): confidence of data retrieved by API
             """
-            self._reset_state()
+            self._package = self._default_package()
             try:
                 if len(signature(handler).parameters) == 1:
                     conf = handler(intent_match)
@@ -102,7 +103,8 @@ class MycroftSkill:
                 conf = 0
             if conf is None:
                 conf = 0.75
-            return conf
+            self._package.confidence = conf
+            return self._package
 
         return custom_handler
 
@@ -115,22 +117,15 @@ class MycroftSkill:
     def is_file(self, file):
         return isfile(self._file_name(file))
 
-    def _package_results(self, intent_name=IntentName()):
-        result = SkillResult(intent_name, data=self._results.copy(), action=self._action)
-        if result.action is None:
-            result.action = intent_name
-
-        self._reset_state()
-        return result
-
     def trigger_action(self, default_intent, get_results=None):
         """Only call outside of a handler to output data"""
         if get_results is not None:
-            self._create_handler(get_results)(None)
-        result = self._package_results()
-        if not result.action:
-            result.action = IntentName(self.skill_name, default_intent)
-        self._query_manager.send_result(result)
+            package = self._create_handler(get_results)(None)
+        else:
+            package = self._default_package()
+        if not package.action:
+            package.action = IntentName(self.skill_name, default_intent)
+        self._query_manager.send_package(package)
 
     @property
     def skill_name(self):
@@ -171,7 +166,7 @@ class MycroftSkill:
         and call self.add_result() to add output data. Nothing should be returned from the handler
         """
         self._intent_manager.register_intent(self.skill_name, intent,
-                                             self._create_handler(handler), lambda: self._callback())
+                                             self._create_handler(handler))
 
     def create_alias(self, alias_intent, source_intent):
         """Add another intent that performs the same action as an existing intent"""
@@ -182,7 +177,7 @@ class MycroftSkill:
         Same as register_intent except the handler only receives a query
         and is only activated when all other Mycroft intents fail
         """
-        self._intent_manager.register_fallback(self.skill_name, self._create_handler(handler), lambda: self._callback())
+        self._intent_manager.register_fallback(self.skill_name, self._create_handler(handler))
 
     def add_result(self, key, value):
         """
@@ -193,13 +188,14 @@ class MycroftSkill:
         Results can be both general and granular. Another example:
             self.add_result('time_seconds', )
         """
-        self._results[str(key)] = str(value).strip()
+        self._package.data[str(key)] = str(value).strip()
 
     def __make_callback(self, handler=lambda: None):
         """Create a callback that packages and returns the skill result"""
-        def callback():
+        def callback(package):
+            self._package = package
             handler()
-            return self._package_results()
+            return self._package
         return callback
 
     def set_action(self, action):
@@ -207,10 +203,10 @@ class MycroftSkill:
         Sets the only action to be executed. This can be used
         to change the outputted dialog under certain conditions
         """
-        self._action = IntentName(self.skill_name, action)
+        self._package.action = IntentName(self.skill_name, action)
 
     def set_callback(self, callback):
-        self._callback = self.__make_callback(callback)
+        self._package.callback = self.__make_callback(callback)
 
 
 class ScheduledSkill(MycroftSkill):

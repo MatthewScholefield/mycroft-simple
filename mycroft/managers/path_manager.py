@@ -67,6 +67,10 @@ class PathManager:
         return join(abspath(mycroft.__path__._path[0]), 'data')
 
     @property
+    def vocab_dir(self):
+        return join(self.data_dir, 'vocab', self.lang)
+
+    @property
     def sounds_dir(self):
         return join(self.data_dir, 'sounds')
 
@@ -86,17 +90,17 @@ class PathManager:
     def skill_dir(self, skill_name):
         return join(self.skills_dir, to_snake(skill_name))
 
-    def vocab_dir(self, skill_name):
+    def skill_vocab_dir(self, skill_name):
         return join(self.skill_dir(skill_name), 'vocab', self.lang)
 
     def formats_dir(self, skill_name):
         return join(self.skill_dir(skill_name), 'formats')
 
     def intent_dir(self, skill_name):
-        return self.vocab_dir(skill_name)
+        return self.skill_vocab_dir(skill_name)
 
     def dialog_dir(self, skill_name):
-        return self.vocab_dir(skill_name)
+        return self.skill_vocab_dir(skill_name)
 
     def skill_conf(self, skill_name):
         return join(self.skill_dir(skill_name), 'skill.conf')
