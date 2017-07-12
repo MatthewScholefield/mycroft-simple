@@ -72,6 +72,9 @@ class MycroftSkill:
     def __init__(self):
         self._package = self._default_package()
 
+        from mycroft.parsing.en_us.parser import Parser
+        self.parser = Parser()
+
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
                                                              self.path_manager.skill_conf(self.skill_name))
