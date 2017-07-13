@@ -52,9 +52,9 @@ class IntentName:
 
 
 class ResultPackage:
-    def __init__(self, name=IntentName(), data={}, action=None, callback=lambda x: x, confidence=0.0):
-        self.name = name
-        self.data = data
+    def __init__(self, name=None, data=None, action=None, callback=lambda x: x, confidence=0.0):
+        self.name = IntentName() if name is None else name
+        self.data = {} if data is None else data
         self.action = action
         self.callback = callback
         self.confidence = confidence
