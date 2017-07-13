@@ -21,8 +21,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from time import sleep
-
 from threading import Thread, Event
 
 from mycroft.formats.dialog_format import DialogFormat

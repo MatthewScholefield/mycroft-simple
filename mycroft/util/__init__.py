@@ -81,21 +81,31 @@ class logger:
 
     _custom_name = None
 
-    @staticmethod
-    def init(config):
-        level = logging.getLevelName(config.get('log_level', 'DEBUG'))
+    @classmethod
+    def init(cls, config):
+        cls.level = logging.getLevelName(config.get('log_level', 'DEBUG'))
+
         fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
         datefmt = '%H:%M:%S'
         formatter = logging.Formatter(fmt, datefmt)
-        handler = logging.FileHandler(config.get('log_file'), mode='w')
-        handler.setFormatter(formatter)
-        logging.basicConfig(handlers=[handler], level=level, format=fmt, datefmt=datefmt)
+        cls.fh = logging.FileHandler(config.get('log_file'), mode='w')
+        cls.fh.setFormatter(formatter)
+
+    @classmethod
+    def create_logger(cls, name):
+        l = logging.getLogger(name)
+        if not hasattr(cls, 'fh') or not hasattr(cls, 'level'):
+            return l
+
+        l.addHandler(cls.fh)
+        l.setLevel(cls.level)
+        return l
 
     def __init__(self, name):
         logger._custom_name = name
 
-    @staticmethod
-    def _log(func, msg, args):
+    @classmethod
+    def _log(cls, func, msg, args):
         if logger._custom_name is not None:
             name = logger._custom_name
             logger._custom_name = None
@@ -114,7 +124,7 @@ class logger:
             # ...
             record = stack[2]
             name = inspect.getmodule(record[0]).__name__ + ':' + record[3] + ':' + str(record[2])
-        func(logging.getLogger(name), msg, *args)
+        func(cls.create_logger(name), msg, *args)
 
     @staticmethod
     def debug(msg, *args):

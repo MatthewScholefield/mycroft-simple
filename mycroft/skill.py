@@ -141,6 +141,9 @@ class MycroftSkill:
         """Indicate that the ongoing job is complete"""
         self._reset_event.set()
 
+    def is_running(self):
+        return not self._reset_event.is_set()
+
     @property
     def skill_name(self):
         """Finds name of skill using builtin python features"""
