@@ -22,7 +22,7 @@
 # under the License.
 #
 import serial
-from threading import Thread
+from threading import Thread, Timer
 
 from queue import Queue
 
@@ -96,11 +96,15 @@ class FaceplateFormat(MycroftFormat):
         enc_cfg = self.global_config['enclosure']
         self.serial = serial.serial_for_url(url=enc_cfg['port'], baudrate=enc_cfg['rate'], timeout=enc_cfg['timeout'])
         self.queue = Queue()
+        self.timers = []
 
     def _reset(self):
         self.command('mouth.reset')
         self.command('eyes.reset')
         self.command('eyes.color=2068479')
+        for i in self.timers:
+            i.cancel()
+        self.timers.clear()
 
     def visemes(self, dur_str):
         begin_time = get_time()
@@ -127,10 +131,38 @@ class FaceplateFormat(MycroftFormat):
             self.queue.task_done()
 
     def command(self, message):
-        self.queue.put(message)
+        self.queue.put(message.strip())
 
     def readline(self):
         return self.serial.readline().decode()
+
+    def _add_timer(self, delay, fn):
+        self.timers.append(Timer(delay, fn))
+        self.timers[-1].start()
+
+    def _run_repeat(self, serial_cmd, delay):
+        self.command(serial_cmd)
+        self._add_timer(delay, lambda: self._run_repeat(serial_cmd, delay))
+
+    def _run_line(self, line):
+        if line[0] == ':':
+            custom_cmd, serial_cmd = list(filter(None, line.split(':', 2)))
+            split = custom_cmd.split()
+            cmd, args = split[0], split[1:]
+
+            def params(expected, default=0):
+                ps = [float(i) for i in (args + [default] * (expected - len(args)))]
+                return ps[0] if len(ps) == 1 else ps
+
+            if cmd == 'repeat':
+                delay, offset = params(2)
+                self._add_timer(delay + offset, lambda: self._run_repeat(serial_cmd, delay))
+            elif cmd == 'delay':
+                self._add_timer(params(1), lambda: self.command(serial_cmd))
+            else:
+                raise ValueError('Unknown custom command: ' + custom_cmd)
+        else:
+            self.command(line)
 
     def _generate_format(self, file, data):
         for line in file.readlines():
@@ -138,4 +170,4 @@ class FaceplateFormat(MycroftFormat):
                 line = line.replace('{' + key + '}', val)
             line = line.strip()
             if len(line) != 0 and '{' not in line and '}' not in line:
-                self.command(line)
+                self._run_line(line)

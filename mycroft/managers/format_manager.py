@@ -21,6 +21,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from time import sleep
+
+from threading import Thread, Event
+
 from mycroft.formats.dialog_format import DialogFormat
 from mycroft.formats.faceplate_format import FaceplateFormat
 from mycroft.util import logger
@@ -44,6 +48,8 @@ class FormatManager:
 
         create(DialogFormat, 'dialog_')
         create(FaceplateFormat, 'faceplate_')
+        self.reset_event = Event()
+        self.reset_event.set()
 
     def _reuse_methods(self, cls, obj, prefix):
         def create_wrapper(func):
@@ -66,6 +72,18 @@ class FormatManager:
         for i in self.formats:
             i.generate(name, results)
 
-    def reset(self):
+    def set_reset_event(self, event):
+        self.reset_event = event
+        Thread(target=self.wait_for_reset, daemon=True).start()
+
+    def _reset(self):
         for i in self.formats:
             i._reset()
+
+    def wait_for_reset(self):
+        self.reset_event.wait()
+        self._reset()
+
+    def reset(self):
+        if self.reset_event.is_set():
+            self._reset()

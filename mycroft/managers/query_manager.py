@@ -41,6 +41,8 @@ class QueryManager:
         """Generates data in all the formats and gives that formatted data to each callback"""
 
         self.format_manager.generate(package.action, package.data)
+        if package.reset_event is not None:
+            self.format_manager.set_reset_event(package.reset_event)
         for i in self.on_response_callbacks:
             i(self.format_manager)
 

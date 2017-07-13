@@ -60,6 +60,8 @@ class EnclosureClient(MycroftClient):
                 self._change_volume(+1)
             elif 'volume.down' in line:
                 self._change_volume(-1)
+            elif 'Command: ' in line:
+                pass  # Reply from Arduino
             elif len(line.strip()) > 0:
                 logger.warning('Could not handle message: ' + line)
 

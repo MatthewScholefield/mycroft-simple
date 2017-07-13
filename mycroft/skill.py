@@ -52,12 +52,13 @@ class IntentName:
 
 
 class ResultPackage:
-    def __init__(self, name=None, data=None, action=None, callback=lambda x: x, confidence=0.0):
+    def __init__(self, name=None, data=None, action=None, reset_event=None, callback=lambda x: x, confidence=0.0):
         self.name = IntentName() if name is None else name
         self.data = {} if data is None else data
         self.action = action
         self.callback = callback
         self.confidence = confidence
+        self.reset_event = reset_event
 
     def set_name(self, name):
         self.name = name
@@ -74,6 +75,7 @@ class MycroftSkill:
 
         from mycroft.parsing.en_us.parser import Parser
         self.parser = Parser()
+        self._reset_event = Event()
 
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
@@ -129,6 +131,15 @@ class MycroftSkill:
         if not package.action:
             package.action = IntentName(self.skill_name, default_intent)
         self._query_manager.send_package(package)
+
+    def start_running(self):
+        """Indicate that the skill has an ongoing process and should keep UI control"""
+        self._reset_event.clear()
+        self._package.reset_event = self._reset_event
+
+    def stop_running(self):
+        """Indicate that the ongoing job is complete"""
+        self._reset_event.set()
 
     @property
     def skill_name(self):
