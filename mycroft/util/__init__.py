@@ -21,6 +21,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import sys
+import os
 import inspect
 import logging
 from contextlib import contextmanager
@@ -132,11 +134,16 @@ class logger:
 
     @staticmethod
     def print_e(e, location=''):
-        if location == '':
-            intro = ''
-        else:
-            intro = 'Exception in ' + location + ', '
-        logger._log(logging.Logger.warning, intro + e.__class__.__name__ + ': ' + str(e), ())
+
+        typ, obj, tb = sys.exc_info()[:3]
+        line = tb.tb_lineno
+        file = os.path.split(tb.tb_frame.f_code.co_filename)[1]
+        file_line = file + ':' + str(line)
+        if location != '':
+            location += ', '
+
+        intro = 'Exception in ' + location + file_line + ', '
+        logger._log(logging.Logger.warning, intro + typ.__name__ + ': ' + str(e), ())
 
 
 @contextmanager
