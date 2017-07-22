@@ -44,7 +44,9 @@ setup(
         'geopy==1.11.0',
         'pytz==2017.2',
         'pyjokes==0.5.0',
-        'cleverwrap==0.2.3.6'
+        'cleverwrap==0.2.3.6',
+        'pydora==1.9.0',
+        'psutil==5.2.2'
     ],
     entry_points={
         'console_scripts': [

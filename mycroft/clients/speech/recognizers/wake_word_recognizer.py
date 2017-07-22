@@ -89,6 +89,7 @@ class MycroftListener(metaclass=ABCMeta):
         since_check = 0
         found_ww = False
         while not found_ww:
+
             chunk = self.stream.read(self.chunk_size)
             raw_audio = raw_audio[-(buffer_size - len(chunk)):] + chunk
             self.update_energy(self._calc_energy(chunk))

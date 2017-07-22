@@ -27,6 +27,7 @@ import os
 import sys
 
 from mycroft.clients.enclosure_client import EnclosureClient
+from mycroft.clients.websocket_client import WebsocketClient
 
 sys.path.append(os.path.abspath('.'))
 
@@ -61,7 +62,7 @@ def main():
     format_manager = FormatManager(path_manager)
     query_manager = QueryManager(intent_manager, format_manager)
     skill_manager = SkillManager(path_manager, intent_manager, query_manager)
-    client_manager = ClientManager([TextClient, EnclosureClient, SpeechClient], path_manager, query_manager, format_manager)
+    client_manager = ClientManager([WebsocketClient, TextClient,  SpeechClient, EnclosureClient], path_manager, query_manager, format_manager)
 
     skill_manager.load_skills()
     intent_manager.on_intents_loaded()

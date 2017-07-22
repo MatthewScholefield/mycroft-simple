@@ -94,6 +94,7 @@ class logger:
     @classmethod
     def create_logger(cls, name):
         l = logging.getLogger(name)
+        l.propagate = False
         if not hasattr(cls, 'fh') or not hasattr(cls, 'level'):
             return l
 

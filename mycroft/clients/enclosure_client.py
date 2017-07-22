@@ -53,6 +53,8 @@ class EnclosureClient(MycroftClient):
         play_wav(self.change_volume_wav)
 
     def run(self):
+        if not self.format_manager.has_faceplate:
+            return
         Thread(target=self.format_manager.faceplate_run, daemon=True).start()
         while not main_thread.exit_event.is_set():
             line = self.format_manager.faceplate_readline()

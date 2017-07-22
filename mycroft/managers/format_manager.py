@@ -34,18 +34,19 @@ class FormatManager:
     def __init__(self, path_manager):
         self.formats = []
 
-        def create(cls, prefix):
+        def create(cls, name):
             instance = None
             try:
                 instance = cls(path_manager)
                 self.formats.append(instance)
             except Exception as e:
                 logger.print_e(e, self.__class__.__name__)
-            self._reuse_methods(cls, instance, prefix)
+            setattr(self, 'has_' + name, instance is not None)
+            self._reuse_methods(cls, instance, name + '_')
             return instance
 
-        create(DialogFormat, 'dialog_')
-        create(FaceplateFormat, 'faceplate_')
+        create(DialogFormat, 'dialog')
+        create(FaceplateFormat, 'faceplate')
         self.reset_event = Event()
         self.reset_event.set()
 
@@ -67,6 +68,7 @@ class FormatManager:
             setattr(self, prefix + func, create_wrapper(getattr(cls, func)))
 
     def generate(self, name, results):
+        self._reset()
         for i in self.formats:
             i.generate(name, results)
 

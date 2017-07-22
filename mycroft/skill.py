@@ -26,6 +26,8 @@ from threading import Timer, Event
 
 import sys
 
+import math
+
 from mycroft.configuration import ConfigurationManager
 from mycroft.util import logger
 from inspect import signature
@@ -76,16 +78,21 @@ class MycroftSkill:
         from mycroft.parsing.en_us.parser import Parser
         self.parser = Parser()
         self._reset_event = Event()
+        self._reset_event.set()
 
         self.global_config = ConfigurationManager.get()
         self.config = ConfigurationManager.load_skill_config(self.skill_name,
                                                              self.path_manager.skill_conf(self.skill_name))
+        self._average_run_time = 60
 
     @classmethod
     def initialize_references(cls, path_manager, intent_manager, query_manager):
         cls.path_manager = path_manager
         cls._intent_manager = intent_manager
         cls._query_manager = query_manager
+
+    def set_av_run_time(self, time_s):
+        self._average_run_time = time_s
 
     def _default_package(self):
         return ResultPackage(IntentName(self.skill_name))
@@ -107,7 +114,11 @@ class MycroftSkill:
                 logger.print_e(e, self.skill_name)
                 conf = 0
             if conf is None:
-                conf = 0.75
+                if self.is_running():
+                    weight = 2 / (1 + math.exp(self._average_run_time / 50.0))
+                    conf = 0.75 + 0.25 * weight
+                else:
+                    conf = 0.75
             self._package.confidence = conf
             return self._package
 

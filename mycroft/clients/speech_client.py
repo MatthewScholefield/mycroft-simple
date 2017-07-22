@@ -60,6 +60,7 @@ class SpeechClient(MycroftClient):
     def run(self):
         try:
             while not main_thread.exit_event.is_set():
+
                 logger.info('Waiting for wake word...')
                 self.listener.wait_for_wake_word()
 
