@@ -31,10 +31,13 @@ class QueryManager:
         self.intent_manager = intent_manager
         self.format_manager = format_manager
         self.threads = []
+        self.on_query_callbacks = []
         self.on_response_callbacks = []
 
     def _run_query(self, query):
         """Function to run query in a separate thread"""
+        for i in self.on_query_callbacks:
+            i(query)
         self.send_package(self.intent_manager.calc_result(query))
 
     def send_package(self, package):
@@ -51,6 +54,10 @@ class QueryManager:
         t = Thread(target=self._run_query, args=(query,))
         t.start()
         self.threads.append(t)
+
+    def on_query(self, callback):
+        """Assign a callback to be run whenever a new response comes in"""
+        self.on_query_callbacks.append(callback)
 
     def on_response(self, callback):
         """Assign a callback to be run whenever a new response comes in"""

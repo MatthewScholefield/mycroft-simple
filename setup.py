@@ -21,7 +21,6 @@ setup(
         'mycroft.managers'
     ],
     install_requires=[
-        'websocket_server>=0.4',
         'PyYAML>=3.12',
         'requests>=2.13.0',
         'pocketsphinx>=0.1.3',
@@ -29,6 +28,9 @@ setup(
         'PyAudio>=0.2.11',
         'pyserial==3.3',
         'pyalsaaudio==0.8.4',
+        'tornado==4.5.1',
+        'websocket-client==0.44.0',
+        'padatious',
 
         # Extra deps required for some installations
         'urllib3>=1.21.1,<1.22',

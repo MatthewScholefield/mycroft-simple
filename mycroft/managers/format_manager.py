@@ -64,7 +64,6 @@ class FormatManager:
             if not a.startswith('_') and callable(getattr(cls, a))
         ]
         for func in funcs:
-            print('Setting attribute ' +  prefix + func)
             setattr(self, prefix + func, create_wrapper(getattr(cls, func)))
 
     def generate(self, name, results):

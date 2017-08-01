@@ -37,22 +37,24 @@ class TextClient(MycroftClient):
         self.prompt = self.config['prompt']
 
     def run(self):
+        print(self.prompt, end='', flush=True)
         while not main_thread.exit_event.is_set():
-            query = input(self.prompt)
+            query = input()
             self.response_event.clear()
             self.send_query(query)
             self.response_event.wait()
+
+    def on_query(self, query):
+        if self.response_event.is_set():
+            print(query)
 
     def on_response(self, format_manager):
         if format_manager is not None:
             dialog = format_manager.dialog_get()
             if len(dialog) > 0:
-                prompt_drawn = self.response_event.is_set()
-
-                if prompt_drawn: print()
                 print()
                 print("    " + dialog)
                 print()
-                if prompt_drawn: print(self.prompt, end='', flush=True)
+                print(self.prompt, end='', flush=True)
 
         self.response_event.set()

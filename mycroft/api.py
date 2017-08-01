@@ -170,19 +170,11 @@ class DeviceApi(Api):
         Returns:
             str: JSON string with user configuration information.
         """
-        return self.request({
-            "path": "/" + self.identity.uuid + "/setting"
-        })
-
-    def get_location(self):
-        """ Retrieve device location information from the web backend
-
-        Returns:
-            str: JSON string with user location.
-        """
-        return self.request({
-            "path": "/" + self.identity.uuid + "/location"
-        })
+        settings = self.request({"path": "/" + self.identity.uuid + "/setting"})
+        loc = self.request({"path": "/" + self.identity.uuid + "/location"})
+        if loc:
+            settings["location"] = loc
+        return settings
 
 
 class STTApi(Api):

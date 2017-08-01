@@ -22,6 +22,8 @@
 # under the License.
 #
 from threading import Thread
+
+import json
 from tornado import websocket, web
 from tornado.ioloop import IOLoop
 from websocket import WebSocketApp
@@ -72,8 +74,8 @@ class WebsocketClient(MycroftClient):
     def run(self):
         self.client.run_forever()
 
-    def on_response(self, format_manager):
-        self.client.send(format_manager.dialog_get())
+    def on_query(self, query):
+        self.client.send(json.dumps({'query': query}))
 
-    def on_exit(self):
-        self.client.close()
+    def on_response(self, format_manager):
+        self.client.send(json.dumps({'response': format_manager.dialog_get()}))

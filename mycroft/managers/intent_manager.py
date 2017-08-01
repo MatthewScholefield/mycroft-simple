@@ -129,7 +129,6 @@ class IntentManager:
 
         best_package = ResultPackage()
         for match in to_test:
-            match.query = query
             logger.info(str(match.name) + ': ' + str(match.confidence))
             for handler in self.handlers_s[str(match.name)]:
                 package = handler(match)

@@ -81,8 +81,7 @@ class MycroftSkill:
         self._reset_event.set()
 
         self.global_config = ConfigurationManager.get()
-        self.config = ConfigurationManager.load_skill_config(self.skill_name,
-                                                             self.path_manager.skill_conf(self.skill_name))
+        self.config = ConfigurationManager.load_skill_config(self.path_manager.skill_conf(self.skill_name))
         self._average_run_time = 60
 
     @classmethod

@@ -13,7 +13,7 @@ check_no_root() {
 
 install_deps() {
     if found_exe apt-get; then
-        apt_packages="python3-pip portaudio19-dev swig virtualenv libyaml-dev libpulse-dev vlcs"
+        apt_packages="python3-pip portaudio19-dev python3-dev swig virtualenv libyaml-dev libpulse-dev vlc libfann-dev"
         echo "Installing $apt_packages..."
         sudo apt-get install -y $apt_packages
     else

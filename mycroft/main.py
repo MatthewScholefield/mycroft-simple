@@ -55,6 +55,7 @@ def try_pair():
 
 
 def main():
+    ConfigurationManager.init()
     logger.init(ConfigurationManager.get())
 
     path_manager = PathManager()

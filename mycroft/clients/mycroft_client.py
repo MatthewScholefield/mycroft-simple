@@ -36,6 +36,7 @@ class MycroftClient(metaclass=ABCMeta):
         self.path_manager = path_manager
         self.format_manager = format_manager
         self._query_manager = query_manager
+        self._query_manager.on_query(self.on_query)
         self._query_manager.on_response(self.on_response)
         self.global_config = ConfigurationManager.get()
         self.config = self.global_config.get(self.__class__.__name__)
@@ -47,6 +48,10 @@ class MycroftClient(metaclass=ABCMeta):
     @abstractmethod
     def run(self):
         """Executes the main thread for the client"""
+        pass
+
+    def on_query(self, query):
+        """Called when any client sends query."""
         pass
 
     @abstractmethod

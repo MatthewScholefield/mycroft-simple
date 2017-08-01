@@ -27,6 +27,8 @@ from os import listdir
 from os.path import isdir, join, dirname
 from subprocess import call
 
+from threading import Thread
+
 from mycroft.skill import MycroftSkill
 from mycroft.util import to_camel, logger
 from mycroft.util.git_repo import GitRepo
@@ -44,9 +46,23 @@ class SkillManager:
                                 branch='skills',
                                 update_freq=1)
 
+    def load_skill(self, skill_name):
+        cls_name = to_camel(skill_name)
+        print('Loading ' + cls_name + '...')
+        try:
+            skill = None
+            exec('from ' + skill_name + '.skill import ' + cls_name)
+            exec('skill = ' + cls_name + '()')
+            self.skills.append(skill)
+
+        except Exception as e:
+            logger.print_e(e, 'loading ' + skill_name)
+            print('Failed to load ' + skill_name + '!')
+
     def load_skills(self):
         """
-        Looks in the skill folder and loads the CamelCase equivalent class of the snake case folder
+        Looks in the skill folder and loads the
+        CamelCase equivalent class of the snake case folder
         This class should be inside the skill.py file. Example:
 
         skills/
@@ -67,18 +83,18 @@ class SkillManager:
         self.git_repo.try_pull()
         # End temporary
 
+        threads = []
         sys.path.append(self.path_manager.skills_dir)
         skill_names = listdir(self.path_manager.skills_dir)
         for skill_name in skill_names:
             if not re.match('^[a-z][a-z_]*_skill$', skill_name):
                 continue
 
-            cls_name = to_camel(skill_name)
-            print('Loading ' + cls_name + '...')
-            try:
-                exec('from ' + skill_name + '.skill import ' + cls_name)
-                exec('self.skills.append(' + cls_name + '())')
-            except Exception as e:
-                logger.print_e(e, 'loading ' + skill_name)
-                print('Failed to load ' + skill_name + '!')
+            t = Thread(target=lambda: self.load_skill(skill_name),
+                   daemon=True)
+            t.start()
+            threads.append(t)
+        for i in threads:
+            i.join()
+        print('All skills loaded.')
         print()

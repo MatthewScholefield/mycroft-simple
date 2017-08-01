@@ -51,6 +51,10 @@ class PathManager:
     def tts_cache(self):
         return self.config['tts']['temp_file']
 
+    @property
+    def intent_cache(self):
+        return join(self.user_dir, 'intent_cache')
+
     def play_wav_cmd(self, file):
         return self.config['play_wav_cmdline'].replace('%1', file)
 

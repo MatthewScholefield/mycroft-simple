@@ -28,6 +28,8 @@ import logging
 from contextlib import contextmanager
 from ctypes import *
 
+from inspect import getmodule
+
 
 def to_camel(snake):
     """time_skill -> TimeSkill"""
@@ -124,7 +126,7 @@ class logger:
             # [3] - function
             # ...
             record = stack[2]
-            name = inspect.getmodule(record[0]).__name__ + ':' + record[3] + ':' + str(record[2])
+            name =  getmodule(record[0]).__name__ + ':' + record[3] + ':' + str(record[2])
         func(cls.create_logger(name), msg, *args)
 
     @staticmethod
