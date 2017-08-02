@@ -55,6 +55,20 @@ def try_pair():
 
 
 def main():
+    if len(sys.argv) > 0:
+        letters = ''.join(sys.argv[1:]).lower()
+    else:
+        letters = 'wtse'
+    clients = []
+    for c, cls in [
+        ('w', WebsocketClient),
+        ('t', TextClient),
+        ('s', SpeechClient),
+        ('e', EnclosureClient)
+    ]:
+        if c in letters:
+            clients.append(cls)
+
     ConfigurationManager.init()
     logger.init(ConfigurationManager.get())
 
@@ -63,7 +77,7 @@ def main():
     format_manager = FormatManager(path_manager)
     query_manager = QueryManager(intent_manager, format_manager)
     skill_manager = SkillManager(path_manager, intent_manager, query_manager)
-    client_manager = ClientManager([WebsocketClient, TextClient,  SpeechClient, EnclosureClient], path_manager, query_manager, format_manager)
+    client_manager = ClientManager(clients, path_manager, query_manager, format_manager)
 
     skill_manager.load_skills()
     intent_manager.on_intents_loaded()
