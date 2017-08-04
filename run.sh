@@ -8,15 +8,12 @@ found_exe() {
 }
 
 found_lib() {
-    IFS=:
     found=1
-
-    for p in ${LD_LIBRARY_PATH}; do
-        if [ -e ${p}/$1 ]; then
+    for p in $(echo $LD_LIBRARY_PATH | tr ':' ' '); do
+        if [ -e "$p/$1" ]; then
             found=0
         fi
     done
-    IFS=$' '
     return $found
 }
 
@@ -29,16 +26,17 @@ check_no_root() {
 
 install_fann() {
     echo "Compiling FANN..."
-    if ! found_exe cmake; then
-        echo "Please install cmake first."
+    if ! found_exe cmake || ! found_exe curl; then
+        echo "Please install cmake and curl first."
         exit 1
     fi
     rm -rf /var/tmp/fann-2.2.0
     curl -L https://github.com/libfann/fann/archive/2.2.0.tar.gz | tar xvz -C /var/tmp
-    pushd /var/tmp/fann-2.2.0
+    prev_d="$(pwd)"
+    cd /var/tmp/fann-2.2.0
     cmake .
     sudo make install
-    popd
+    cd "$prev_d"
 }
 
 install_deps() {
@@ -46,7 +44,7 @@ install_deps() {
         echo "Installing $apt_packages..."
         sudo apt-get install -y $apt_packages
         fann_version=$(dpkg -s libfann-dev 2>/dev/null | grep Version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-        if [ $fann_version == 0.2.2 ]; then
+        if [ "$fann_version" != "0.2.2" ]; then
             sudo apt-get remove -y libfann-dev
         fi
     else
@@ -106,6 +104,7 @@ check_no_root
 
 if update_param $@; then
     git pull --ff-only
+    shift
 fi
 
 find_virtualenv_root
@@ -119,4 +118,4 @@ fi
 
 mark_complete
 
-mycroft_simple
+mycroft_simple $@
