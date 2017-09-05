@@ -31,8 +31,8 @@ from time import time
 
 
 class GitRepo:
-    def __init__(self, dir, url, branch, update_freq=1, tag=None):
-        self.dir = dir
+    def __init__(self, directory, url, branch, update_freq=1, tag=None):
+        self.dir = directory
         self.url = url
         self.branch = branch
         self.update_freq = update_freq

@@ -48,8 +48,8 @@ class IntentName:
         return self.skill == other.skill and self.intent == other.intent
 
     @classmethod
-    def from_str(cls, str):
-        parts = str.split(':')
+    def from_str(cls, string):
+        parts = string.split(':')
         return cls(parts[0], parts[1])
 
 
@@ -170,7 +170,7 @@ class MycroftSkill:
     def location_pretty(self):
         """ Get a more 'human' version of the location as a string. """
         loc = self.location
-        if type(loc) is dict and loc["city"]:
+        if isinstance(loc, dict) and loc["city"]:
             return loc["city"]["name"]
         return None
 
@@ -178,7 +178,7 @@ class MycroftSkill:
     def location_timezone(self):
         """ Get the timezone code, such as 'America/Los_Angeles' """
         loc = self.location
-        if type(loc) is dict and loc["timezone"]:
+        if isinstance(loc, dict) and loc["timezone"]:
             return loc["timezone"]["code"]
         return None
 

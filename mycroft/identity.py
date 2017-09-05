@@ -24,6 +24,8 @@
 import json
 import time
 
+from json.decoder import JSONDecodeError
+
 from mycroft.filesystem import FileSystemAccess
 
 
@@ -46,7 +48,7 @@ class IdentityManager:
         try:
             with FileSystemAccess('identity').open('identity2.json', 'r') as f:
                 IdentityManager.__identity = DeviceIdentity(**json.load(f))
-        except:
+        except (JSONDecodeError, OSError):
             IdentityManager.__identity = DeviceIdentity()
         return IdentityManager.__identity
 
@@ -58,7 +60,8 @@ class IdentityManager:
             json.dump(IdentityManager.__identity.__dict__, f)
 
     @staticmethod
-    def update(login={}):
+    def update(login=None):
+        login = login or {}
         expiration = login.get("expiration", 0)
         IdentityManager.__identity.uuid = login.get("uuid", "")
         IdentityManager.__identity.access = login.get("accessToken", "")

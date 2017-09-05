@@ -21,14 +21,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-import os
-import sys
 import re
 
-sys.path.append(os.path.abspath('.'))
 from mycroft.parsing.mycroft_parser import MycroftParser, TimeType
-from collections import OrderedDict
 
 
 class Parser(MycroftParser):
@@ -64,11 +59,11 @@ class Parser(MycroftParser):
             TimeType.DAY: ['day', 'dy', 'd']
         }
 
-    def duration(self, orig_str):
+    def duration(self, string):
         regex_str = ('(((' + '|'.join(k for k, v in self.units) + r'|[0-9])+[ \-\t]*)+)(' +
                      '|'.join(name for ttype, names in self.ttype_names_s.items() for name in names) + ')s?')
         dur = 0
-        matches = tuple(re.finditer(regex_str, orig_str))
+        matches = tuple(re.finditer(regex_str, string))
         if len(matches) == 0:
             raise ValueError
         for m in matches:
@@ -80,10 +75,10 @@ class Parser(MycroftParser):
             dur += ttype_typ.to_sec(self._find_value(num_str))
         return dur
 
-    def _find_value(self, str):
+    def _find_value(self, string):
         for unit, value in self.units:
-            str = str.replace(unit, value)
-        str = str.replace('-', ' ')  # forty-two -> forty two
+            string = string.replace(unit, value)
+        string = string.replace('-', ' ')  # forty-two -> forty two
 
         regex_re = [
             (r'[0-9]+\.([^\-+*/])', r'a\1'),
@@ -97,9 +92,9 @@ class Parser(MycroftParser):
         ]
 
         for sr, replace in regex_re:
-            str = re.sub(sr, replace, str)
+            string = re.sub(sr, replace, string)
 
-        num_strs = re.findall(r'[0-9\-+*/]+', str)
+        num_strs = re.findall(r'[0-9\-+*/]+', string)
         if len(num_strs) == 0:
             raise ValueError
 

@@ -26,6 +26,8 @@ from mycroft.engines.intent_engine import IntentEngine, IntentMatch
 from mycroft.skill import IntentName
 from padatious import IntentContainer
 
+from mycroft.util import logger
+
 
 class PadatiousEngine(IntentEngine):
     """Interface for Padatious intent engine"""
@@ -48,7 +50,9 @@ class PadatiousEngine(IntentEngine):
 
     def on_intents_loaded(self):
         print('Training...')
+        logger.info('Training...')
         self.container.train()
+        logger.info('Training complete!')
         print('Training complete!')
         print()
 

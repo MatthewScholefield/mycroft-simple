@@ -55,7 +55,10 @@ def try_pair():
 
 
 def main():
-    if len(sys.argv) > 0:
+    ConfigurationManager.init()
+    logger.init(ConfigurationManager.get())
+
+    if len(sys.argv) > 1:
         letters = ''.join(sys.argv[1:]).lower()
     else:
         letters = 'wtse'
@@ -68,25 +71,33 @@ def main():
     ]:
         if c in letters:
             clients.append(cls)
-
-    ConfigurationManager.init()
-    logger.init(ConfigurationManager.get())
+    msg = 'Starting clients: ' + ', '.join(cls.__name__ for cls in clients)
+    print(msg)
+    logger.debug(msg)
 
     path_manager = PathManager()
     intent_manager = IntentManager(path_manager)
     format_manager = FormatManager(path_manager)
     query_manager = QueryManager(intent_manager, format_manager)
     skill_manager = SkillManager(path_manager, intent_manager, query_manager)
+
+    logger.debug('Starting clients...')
     client_manager = ClientManager(clients, path_manager, query_manager, format_manager)
+    logger.debug('Started clients.')
 
     skill_manager.load_skills()
+    logger.debug('Loaded skills.')
     intent_manager.on_intents_loaded()
+    logger.debug('Executed on intents loaded callback.')
     try_pair()
+    logger.debug('Checked pairing.')
 
     client_manager.start()
     try:
+        logger.debug('Waiting to quit...')
         main_thread.wait_for_quit()
     finally:
+        logger.debug('Quiting!')
         client_manager.on_exit()
 
 

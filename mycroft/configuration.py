@@ -62,7 +62,7 @@ class ConfigurationManager:
         def add_config(file_name):
             if isfile(file_name):
                 with open(file_name) as f:
-                    cls.__config.update(yaml.load('\n'.join(f.readlines())))
+                    cls.__config.update(yaml.safe_load('\n'.join(f.readlines())))
 
         for i in load_order:
             add_config(i)
@@ -75,7 +75,7 @@ class ConfigurationManager:
     def load_skill_config(conf_file):
         if isfile(conf_file):
             with open(conf_file, 'r') as f:
-                return yaml.load(f)
+                return yaml.safe_load(f)
         return {}
 
     @classmethod

@@ -22,7 +22,7 @@
 # under the License.
 #
 from os.path import join, isfile
-from subprocess import check_output, PIPE
+from subprocess import check_output
 
 from mycroft.clients.speech.tts.mycroft_tts import MycroftTTS
 from mycroft.util.git_repo import GitRepo
@@ -32,11 +32,11 @@ class MimicTTS(MycroftTTS):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.mimic_repo = GitRepo(dir=self.path_manager.mimic_dir,
+        self.mimic_repo = GitRepo(directory=self.path_manager.mimic_dir,
                                   url='https://github.com/MycroftAI/mimic.git',
                                   branch='1.2.0.2',
                                   update_freq=24)
-        self.script_repo = GitRepo(dir=join(self.mimic_repo.dir, 'scripts'),
+        self.script_repo = GitRepo(directory=join(self.mimic_repo.dir, 'scripts'),
                                    url='https://github.com/MatthewScholefield/mycroft-simple.git',
                                    branch='mimic-script',
                                    update_freq=24)

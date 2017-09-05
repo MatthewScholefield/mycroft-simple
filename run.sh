@@ -1,7 +1,7 @@
 #!/bin/sh
 
 apt_packages="python3-pip portaudio19-dev python3-dev swig virtualenv libyaml-dev libpulse-dev vlc libfann-dev"
-pip_packages="$(cat setup.py | tr -d '\n' | tr -d ' ' | grep -Eo 'install_requires=\[[^]]*\]')"
+pip_packages="$(< setup.py tr -d '\n' | tr -d ' ' | grep -Eo 'install_requires=\[[^]]*\]')"
 
 found_exe() {
     hash "$1" 2>/dev/null

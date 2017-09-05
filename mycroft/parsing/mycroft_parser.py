@@ -21,7 +21,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import sys
 from abc import ABCMeta, abstractmethod
 
 from enum import Enum, unique
@@ -54,15 +53,17 @@ class MycroftParser(metaclass=ABCMeta):
             quantities(list<tuple<TimeType, int>>):
 
         Returns:
-            quantities(str): quantities in natural language
+            str: quantities in natural language
         """
         pass
 
     @abstractmethod
-    def duration(self, str):
+    def duration(self, string):
         """
-        Returns duration in natural language string in seconds
         Raises: ValueError, if nothing found
+
+        Returns:
+            float: duration in natural language string in seconds
         """
         pass
 

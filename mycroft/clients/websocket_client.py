@@ -56,7 +56,8 @@ class WebsocketClient(MycroftClient):
         self.t = None
         self.client = self.create_client()
 
-    def start_server(self):
+    @staticmethod
+    def start_server():
         application = web.Application(handlers=[('/', SocketHandler)])
         application.listen(8017, '127.0.0.1')
 

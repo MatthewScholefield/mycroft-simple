@@ -41,7 +41,7 @@ class SkillManager:
         MycroftSkill.initialize_references(path_manager, intent_manager, query_manager)
         self.path_manager = path_manager
         self.skills = []
-        self.git_repo = GitRepo(dir=self.path_manager.skills_dir,
+        self.git_repo = GitRepo(directory=self.path_manager.skills_dir,
                                 url='https://github.com/MatthewScholefield/mycroft-simple.git',
                                 branch='skills',
                                 update_freq=1)
@@ -71,9 +71,6 @@ class SkillManager:
             weather_skill/
                 skill.py - class WeatherSkill(MycroftSkill):
         """
-
-        def cmd(a):
-            call(a.split(' '))
 
         # Temporary while skills are monolithic
         skills_dir = self.path_manager.skills_dir

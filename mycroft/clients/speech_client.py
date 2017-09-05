@@ -21,7 +21,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from os.path import join, abspath, dirname
+from os.path import join
 from threading import Event
 
 from requests.exceptions import ReadTimeout
@@ -32,7 +32,6 @@ from mycroft.clients.mycroft_client import MycroftClient
 from mycroft.clients.speech.recognizers.pocketsphinx_recognizer import PocketsphinxListener
 from mycroft.clients.speech.stt import STT
 from mycroft.clients.speech.tts.mimic_tts import MimicTTS
-from mycroft.configuration import ConfigurationManager
 from mycroft.util import logger
 from mycroft.util.audio import play_audio
 
@@ -75,7 +74,8 @@ class SpeechClient(MycroftClient):
 
                 try:
                     utterance = self.stt.execute(recording)
-                except (UnknownValueError, ReadTimeout):
+                except (UnknownValueError, ReadTimeout) as e:
+                    logger.print_e(e, 'Speech Client')
                     utterance = ''
                 logger.info('Utterance: ' + utterance)
 

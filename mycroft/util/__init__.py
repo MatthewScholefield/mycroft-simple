@@ -92,6 +92,7 @@ class logger:
         formatter = logging.Formatter(fmt, datefmt)
         cls.fh = logging.FileHandler(config.get('log_file'), mode='w')
         cls.fh.setFormatter(formatter)
+        cls.create_logger('')
 
     @classmethod
     def create_logger(cls, name):
@@ -148,7 +149,7 @@ class logger:
     @staticmethod
     def print_e(e, location=''):
 
-        typ, obj, tb = sys.exc_info()[:3]
+        typ, _, tb = sys.exc_info()[:3]
         line = tb.tb_lineno
         file = os.path.split(tb.tb_frame.f_code.co_filename)[1]
         file_line = file + ':' + str(line)
