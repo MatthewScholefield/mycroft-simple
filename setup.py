@@ -30,7 +30,7 @@ setup(
         'pyalsaaudio==0.8.4',
         'tornado==4.5.1',
         'websocket-client==0.44.0',
-        'padatious',
+        'padatious==0.2.2',
 
         # Extra deps required for some installations
         'urllib3>=1.21.1,<1.22',
