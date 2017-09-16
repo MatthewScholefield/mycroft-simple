@@ -25,7 +25,7 @@ from threading import Thread, Event
 
 from mycroft.formats.dialog_format import DialogFormat
 from mycroft.formats.faceplate_format import FaceplateFormat
-from mycroft.util import logger
+from mycroft.util import LOG
 
 
 class FormatManager:
@@ -40,7 +40,7 @@ class FormatManager:
                 instance = cls(path_manager)
                 self.formats.append(instance)
             except Exception as e:
-                logger.print_e(e, self.__class__.__name__)
+                LOG.print_e(e, self.__class__.__name__)
             setattr(self, 'has_' + name, instance is not None)
             self._reuse_methods(cls, instance, name + '_')
             return instance

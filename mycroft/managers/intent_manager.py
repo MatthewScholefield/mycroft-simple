@@ -26,7 +26,7 @@ from math import sqrt
 from mycroft.engines.intent_engine import IntentMatch
 from mycroft.engines.padatious_engine import PadatiousEngine
 from mycroft.skill import IntentName, ResultPackage
-from mycroft.util import logger
+from mycroft.util import LOG
 
 engine_classes = [PadatiousEngine]
 
@@ -129,24 +129,24 @@ class IntentManager:
 
         best_package = ResultPackage()
         for match in to_test:
-            logger.info(str(match.name) + ': ' + str(match.confidence))
+            LOG.info(str(match.name) + ': ' + str(match.confidence))
             for handler in self.handlers_s[str(match.name)]:
                 package = handler(match)
-                logger.debug('\tConfidence: ' + str(package.confidence))
+                LOG.debug('\tConfidence: ' + str(package.confidence))
                 package.confidence = sqrt(package.confidence * match.confidence)
                 if package.confidence > best_package.confidence:
                     best_package = package
 
         if best_package.confidence > 0.5:
-            logger.info('Selected intent ' + str(best_package.name))
+            LOG.info('Selected intent ' + str(best_package.name))
             return best_package.callback(best_package)
 
-        logger.info('Falling back.')
+        LOG.info('Falling back.')
 
         best_package = ResultPackage()
         for handler in self.fallbacks:
             package = handler(query)
-            logger.debug('\tConfidence: ' + str(package.confidence))
+            LOG.debug('\tConfidence: ' + str(package.confidence))
             if package.confidence > best_package.confidence:
                 best_package = package
 

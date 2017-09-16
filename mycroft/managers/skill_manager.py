@@ -30,7 +30,7 @@ from subprocess import call
 from threading import Thread
 
 from mycroft.skill import MycroftSkill
-from mycroft.util import to_camel, logger
+from mycroft.util import to_camel, LOG
 from mycroft.util.git_repo import GitRepo
 
 
@@ -56,7 +56,7 @@ class SkillManager:
             self.skills.append(skill)
 
         except Exception as e:
-            logger.print_e(e, 'loading ' + skill_name)
+            LOG.print_e(e, 'loading ' + skill_name)
             print('Failed to load ' + skill_name + '!')
 
     def load_skills(self):

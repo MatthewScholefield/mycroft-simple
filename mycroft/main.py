@@ -41,7 +41,7 @@ from mycroft.managers.intent_manager import IntentManager
 from mycroft.managers.path_manager import PathManager
 from mycroft.managers.query_manager import QueryManager
 from mycroft.managers.skill_manager import SkillManager
-from mycroft.util import logger
+from mycroft.util import LOG
 from mycroft import main_thread
 
 
@@ -56,7 +56,7 @@ def try_pair():
 
 def main():
     ConfigurationManager.init()
-    logger.init(ConfigurationManager.get())
+    LOG.init(ConfigurationManager.get())
 
     if len(sys.argv) > 1:
         letters = ''.join(sys.argv[1:]).lower()
@@ -73,7 +73,7 @@ def main():
             clients.append(cls)
     msg = 'Starting clients: ' + ', '.join(cls.__name__ for cls in clients)
     print(msg)
-    logger.debug(msg)
+    LOG.debug(msg)
 
     path_manager = PathManager()
     intent_manager = IntentManager(path_manager)
@@ -81,23 +81,23 @@ def main():
     query_manager = QueryManager(intent_manager, format_manager)
     skill_manager = SkillManager(path_manager, intent_manager, query_manager)
 
-    logger.debug('Starting clients...')
+    LOG.debug('Starting clients...')
     client_manager = ClientManager(clients, path_manager, query_manager, format_manager)
-    logger.debug('Started clients.')
+    LOG.debug('Started clients.')
 
     skill_manager.load_skills()
-    logger.debug('Loaded skills.')
+    LOG.debug('Loaded skills.')
     intent_manager.on_intents_loaded()
-    logger.debug('Executed on intents loaded callback.')
+    LOG.debug('Executed on intents loaded callback.')
     try_pair()
-    logger.debug('Checked pairing.')
+    LOG.debug('Checked pairing.')
 
     client_manager.start()
     try:
-        logger.debug('Waiting to quit...')
+        LOG.debug('Waiting to quit...')
         main_thread.wait_for_quit()
     finally:
-        logger.debug('Quiting!')
+        LOG.debug('Quiting!')
         client_manager.on_exit()
 
 

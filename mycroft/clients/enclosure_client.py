@@ -28,7 +28,7 @@ from threading import Thread
 
 from mycroft import main_thread
 from mycroft.clients.mycroft_client import MycroftClient
-from mycroft.util import logger
+from mycroft.util import LOG
 from mycroft.util.audio import play_wav
 
 
@@ -65,7 +65,7 @@ class EnclosureClient(MycroftClient):
             elif 'Command: ' in line:
                 pass  # Reply from Arduino
             elif len(line.strip()) > 0:
-                logger.warning('Could not handle message: ' + line)
+                LOG.warning('Could not handle message: ' + line)
 
     def on_response(self, format_manager):
         pass

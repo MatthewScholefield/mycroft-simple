@@ -27,7 +27,7 @@ from threading import Thread, Timer
 from queue import Queue
 
 from mycroft.formats.mycroft_format import MycroftFormat
-from mycroft.util import logger
+from mycroft.util import LOG
 from time import sleep, time as get_time
 
 
@@ -126,7 +126,7 @@ class FaceplateFormat(MycroftFormat):
     def run(self):
         while True:
             command = self.queue.get()
-            logger.debug('Sending message: ' + command)
+            LOG.debug('Sending message: ' + command)
             self.serial.write((command + '\n').encode())
             self.queue.task_done()
 

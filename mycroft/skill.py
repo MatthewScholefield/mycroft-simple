@@ -29,7 +29,7 @@ import sys
 import math
 
 from mycroft.configuration import ConfigurationManager
-from mycroft.util import logger
+from mycroft.util import LOG
 from inspect import signature
 
 
@@ -110,7 +110,7 @@ class MycroftSkill:
                 else:
                     conf = handler()
             except Exception as e:
-                logger.print_e(e, self.skill_name)
+                LOG.print_e(e, self.skill_name)
                 conf = 0
             if conf is None:
                 if self.is_running():
@@ -264,7 +264,7 @@ class ScheduledSkill(MycroftSkill):
             try:
                 self.on_triggered()
             except Exception as e:
-                logger.print_e(e, self.skill_name)
+                LOG.print_e(e, self.skill_name)
             finally:
                 self._schedule()
 
