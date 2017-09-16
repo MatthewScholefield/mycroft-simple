@@ -22,11 +22,9 @@
 # under the License.
 #
 import os
-from os.path import isdir, join
-
-from subprocess import call
-
 from os import getcwd, chdir
+from os.path import isdir, join
+from subprocess import call
 from time import time
 
 

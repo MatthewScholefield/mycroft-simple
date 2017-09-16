@@ -25,7 +25,7 @@ import mycroft
 from os.path import join, expanduser, abspath, dirname
 
 from mycroft.configuration import ConfigurationManager
-from mycroft.util import to_snake
+from mycroft.util.text import to_snake
 
 
 class PathManager:
@@ -68,7 +68,7 @@ class PathManager:
 
     @property
     def data_dir(self):
-        return join(abspath(mycroft.__path__._path[0]), 'data')
+        return join(abspath(mycroft.__path__[0]), 'data')
 
     @property
     def vocab_dir(self):

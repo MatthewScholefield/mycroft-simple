@@ -29,8 +29,9 @@ from subprocess import call
 
 from threading import Thread
 
-from mycroft.skill import MycroftSkill
-from mycroft.util import to_camel, LOG
+from mycroft import MycroftSkill
+from mycroft.util import LOG
+from mycroft.util.text import to_camel
 from mycroft.util.git_repo import GitRepo
 
 

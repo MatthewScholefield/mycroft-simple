@@ -27,7 +27,7 @@ from os.path import join, dirname, expanduser
 
 import yaml
 
-from mycroft.util import to_snake
+from mycroft.util.text import to_snake
 
 DEFAULT_CONFIG = join(dirname(__file__), 'data', 'mycroft.conf')
 SYSTEM_CONFIG = '/etc/mycroft/mycroft.conf'

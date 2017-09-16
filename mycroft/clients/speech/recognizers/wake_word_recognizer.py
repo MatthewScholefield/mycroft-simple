@@ -28,7 +28,7 @@ from threading import Event
 import pyaudio
 from speech_recognition import AudioData
 
-from mycroft.util import to_snake
+from mycroft.util.text import to_snake
 
 
 class MycroftListener(metaclass=ABCMeta):
