@@ -48,7 +48,8 @@ setup(
         'pyjokes==0.5.0',
         'cleverwrap==0.2.3.6',
         'pydora==1.9.0',
-        'psutil==5.2.2'
+        'psutil==5.2.2',
+        'py-stackexchange==2.2.7'
     ],
     entry_points={
         'console_scripts': [
